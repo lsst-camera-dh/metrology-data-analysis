@@ -262,18 +262,22 @@ class OgpData(MetrologyData):
         # Convert to PointCloud objects.
         for key in data:
             data[key] = PointCloud(*zip(*tuple(data[key])))
-        if len(data) != 3:
-            raise RuntimeError("Expected exactly 3 Contour data blocks in the OGP data. %i found." % len(data))
+        if len(data) not in (1, 3, 7):
+            raise RuntimeError("Expected 1, 3, or 7 Contour data blocks in the OGP data. %i found." % len(data))
         # Identify sensor and reference point clouds by mean y-values.
         # The sensor dataset is in the middle.
         yavgs = sorted([np.mean(cloud.y) for cloud in data.values()])
         ref_clouds = []
+        sensor_index = int(np.median(range(len(yavgs))))
         for cloud in data.values():
-            if np.mean(cloud.y) == yavgs[1]:
+            if np.mean(cloud.y) == yavgs[sensor_index]:
                 self.sensor = cloud
             else:
                 ref_clouds.append(cloud)
-        self.reference = ref_clouds[0] + ref_clouds[1]
+        if len(yavgs) > 1:
+            # Add all the reference point clouds together, explicitly
+            # setting the 'start' value in the sum function.
+            self.reference = sum(ref_clouds[1:], ref_clouds[0])
 
     def _xyz(self, line):
         # Unpack a line and convert z values from mm to microns.

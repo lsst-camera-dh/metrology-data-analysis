@@ -1,0 +1,12 @@
+# -*- python -*-
+{
+    'schema_name' : 'absolute_height',
+    'schema_version' : 0,
+    'dzdx' : float,
+    'dzdy' : float,
+    'z0' : float,
+    'zmean' : float,
+    'znom' : float,
+    'znom_residual_025' : float,
+    'znom_residual_975' : float
+}

@@ -6,18 +6,12 @@ from flatnessTask import flatnessTask
 sensor_id = siteUtils.getUnitId()
 ccd_vendor = siteUtils.getCcdVendor()
 
-#patterns = dict(e2v='*CT100*.csv', ITL='*.txt')
+# Find the OGP metrology scan data
+met_file = siteUtils.dependency_glob('*_Flatness*.DAT',jobname=siteUtils.getProcessName('OGP_Dimensional_Metrology_Upload'),description='OGP Flatness scan:')
 
-#
-# Find the vendor metrology scan data from the Data Catalog.  Sort the
-# results in case of multiple vendor ingests so that we can use the
-# most recent one based on SR-RCV-1 job id, assuming the filenames
-# are the same for each delivery.
-#
-#met_file = metUtils.get_met_scan_data(sensor_id, patterns[ccd_vendor],
-#                                      sort=True)[-1]
-# Find the vendor metrology scan data
-met_file = siteUtils.dependency_glob('*_Flat_*.DAT',jobname=siteUtils.getProcessName('OGP_Edge_Flatness_Scan_Upload'),description='OGP Flatnes scan:')
+met_file = met_file[0]  # siteUtils returns met_file as a list with one member;
+                        # here take the first (and only) member
 
-flatnessTask(sensor_id, met_file, dtype=ccd_vendor,
-             pickle_file='flatness.pickle')
+# The dtype below indicates the source of the data, which is always OGP
+# for sensors measured at BNL
+flatnessTask(sensor_id, met_file, dtype='OGP', pickle_file='flatness.pickle')

@@ -54,10 +54,6 @@ class PointCloud(object):
         positions = np.array(zip(self.x, self.y))
         
         # Initial fit
-	print "In xyzPlane_fit self.z:"
-	print self.z
-	print "positions: "
-	print positions
         pars, _ = scipy.optimize.curve_fit(xyz_plane, positions, self.z, p0=p0)
         dz = xyz_plane(positions, *pars) - self.z
         mean, stdev = np.mean(dz), np.std(dz)
@@ -250,10 +246,7 @@ class OgpData(MetrologyData):
         # each to a PointCloud object, sort by mean y-value, and
         # finally, set the sensor and reference datasets.
         data = dict()
-	print "In OgpData"
         key = None
-        #for line in open(self.infile):
-	print self.infile
         for line in open(self.infile):
             if line.startswith('Contour'):
                 key = line.strip()
@@ -267,7 +260,6 @@ class OgpData(MetrologyData):
             else:
                 key = None
         # Convert to PointCloud objects.
-	print "....reading complete"
         for key in data:
             data[key] = PointCloud(*zip(*tuple(data[key])))
         if len(data) not in (1, 3, 7):
@@ -286,8 +278,7 @@ class OgpData(MetrologyData):
             # Add all the reference point clouds together, explicitly
             # setting the 'start' value in the sum function.
             self.reference = sum(ref_clouds[1:], ref_clouds[0])
-	print "data:"
-	print data
+
     def _xyz(self, line):
         # Unpack a line and convert z values from mm to microns.
         data = [float(x) for x in line.split()[:3]]
@@ -302,9 +293,6 @@ class ItlData(MetrologyData):
         # over the sensor. The piston and tilt relative to the 13mm
         # ZNOM has presumably been subtracted off.
         data = dict([(key, []) for key in 'XYZ'])
-	print "self"
-	print self
-	print "self.infile: %s" % self.infile
         for line in open(self.infile):
             if line.startswith('ImagePoint'):
                 tokens = line.split()
@@ -316,8 +304,6 @@ class ItlData(MetrologyData):
         self.sensor = PointCloud(data['X'], data['Y'], data['Z'])
         # Convert z from mm to micron
         self.sensor.z *= 1e3
-	print 'self.sensor.x:'
-	print self.sensor.x
 
 class E2vData(MetrologyData):
     def __init__(self, infile):

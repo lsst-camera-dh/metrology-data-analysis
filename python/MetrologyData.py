@@ -202,6 +202,22 @@ class MetrologyData(object):
         win.set_title(title)
         return win
 
+    # Below applies outlier clipping as in plot_statistics
+    def resids_clip_boxplot(self, nsigma=4, yrange=None, title=None):
+        win = plot.Window()
+	dz = self.resids
+        # Trim outliers at nsigma and recompute mean and stdev.
+        mean, stdev = np.mean(dz), np.std(dz)
+        index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
+
+        plot.pylab.boxplot(dz[index])
+        plot.pylab.ylabel(r'$\mu$m')
+        plot.setAxis(yrange=yrange)
+        if title is None:
+            title = self.infile
+        win.set_title(title)
+        return win
+
     def plot_statistics(self, nsigma=4, title=None, zoffset=0):
         """
         Plot summary statistics of z-value residuals relative to the 
@@ -262,15 +278,18 @@ class OgpData(MetrologyData):
         # Convert to PointCloud objects.
         for key in data:
             data[key] = PointCloud(*zip(*tuple(data[key])))
-        if len(data) not in (1, 3, 7):
-            raise RuntimeError("Expected 1, 3, or 7 Contour data blocks in the OGP data. %i found." % len(data))
-        # Identify sensor and reference point clouds by mean y-values.
-        # The sensor dataset is in the middle.
+
+        # Identify sensor and reference point clouds by mean y-values:
+        # The sensor Contours are all in the range [0,42] and the reference
+	# point clouds are outside this range.  The test below is based
+	# on the mean y coordinates of the Contours, so the implicit 
+	# assumption is that no single Contour will cross between reference
+	# blocks.
         yavgs = sorted([np.mean(cloud.y) for cloud in data.values()])
         ref_clouds = []
-        sensor_index = int(np.median(range(len(yavgs))))
+
         for cloud in data.values():
-            if np.mean(cloud.y) == yavgs[sensor_index]:
+            if np.mean(cloud.y) >= 0. and np.mean(cloud.y) <= 42.:
                 self.sensor = cloud
             else:
                 ref_clouds.append(cloud)

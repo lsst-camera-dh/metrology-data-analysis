@@ -202,22 +202,6 @@ class MetrologyData(object):
         win.set_title(title)
         return win
 
-    # Below applies outlier clipping as in plot_statistics
-    def resids_clip_boxplot(self, nsigma=4, yrange=None, title=None):
-        win = plot.Window()
-	dz = self.resids
-        # Trim outliers at nsigma and recompute mean and stdev.
-        mean, stdev = np.mean(dz), np.std(dz)
-        index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
-
-        plot.pylab.boxplot(dz[index])
-        plot.pylab.ylabel(r'$\mu$m')
-        plot.setAxis(yrange=yrange)
-        if title is None:
-            title = self.infile
-        win.set_title(title)
-        return win
-
     def plot_statistics(self, nsigma=4, title=None, zoffset=0):
         """
         Plot summary statistics of z-value residuals relative to the 

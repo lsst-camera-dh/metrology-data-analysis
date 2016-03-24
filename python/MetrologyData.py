@@ -265,10 +265,10 @@ class OgpData(MetrologyData):
 
         # Identify sensor and reference point clouds by mean y-values:
         # The sensor Contours are all in the range [0,42] and the reference
-	# point clouds are outside this range.  The test below is based
-	# on the mean y coordinates of the Contours, so the implicit 
-	# assumption is that no single Contour will cross between reference
-	# blocks.
+        # point clouds are outside this range.  The test below is based
+        # on the mean y coordinates of the Contours, so the implicit 
+        # assumption is that no single Contour will cross between reference
+        # blocks.
         yavgs = sorted([np.mean(cloud.y) for cloud in data.values()])
         ref_clouds = []
 

@@ -262,15 +262,18 @@ class OgpData(MetrologyData):
         # Convert to PointCloud objects.
         for key in data:
             data[key] = PointCloud(*zip(*tuple(data[key])))
-        if len(data) not in (1, 3, 7):
-            raise RuntimeError("Expected 1, 3, or 7 Contour data blocks in the OGP data. %i found." % len(data))
-        # Identify sensor and reference point clouds by mean y-values.
-        # The sensor dataset is in the middle.
+
+        # Identify sensor and reference point clouds by mean y-values:
+        # The sensor Contours are all in the range [0,42] and the reference
+        # point clouds are outside this range.  The test below is based
+        # on the mean y coordinates of the Contours, so the implicit 
+        # assumption is that no single Contour will cross between reference
+        # blocks.
         yavgs = sorted([np.mean(cloud.y) for cloud in data.values()])
         ref_clouds = []
-        sensor_index = int(np.median(range(len(yavgs))))
+
         for cloud in data.values():
-            if np.mean(cloud.y) == yavgs[sensor_index]:
+            if np.mean(cloud.y) >= 0. and np.mean(cloud.y) <= 42.:
                 self.sensor = cloud
             else:
                 ref_clouds.append(cloud)

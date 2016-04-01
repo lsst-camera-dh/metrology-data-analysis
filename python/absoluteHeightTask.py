@@ -17,7 +17,7 @@ def absoluteHeightTask(sensor_id, infile, dtype='OGP', zoffset=0,
         #
         sensorData.set_ref_plane(XyzPlane(0, 0, 12998.))
     else:
-        raise RuntimeError("%s not supported for absolute height analysis" 
+        raise RuntimeError("%s not supported for absolute height analysis"
                            % dtype)
     #
     # Write surface height data points.
@@ -45,7 +45,7 @@ def absoluteHeightTask(sensor_id, infile, dtype='OGP', zoffset=0,
     azims = (10, 45)
     for azim in azims:
         sensorData.absolute_height_plot(azim=azim)
-        metData.plot.save('%s_abs_height_point_cloud_azim_%i.png' 
+        metData.plot.save('%s_abs_height_point_cloud_azim_%i.png'
                           % (sensor_id, azim))
 
     if pickle_file is not None:

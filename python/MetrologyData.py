@@ -191,7 +191,7 @@ class MetrologyData(object):
         for my_pos, my_z in zip(pos, self.resids):
             output.write('%.6f  %.6f  %.6f mm\n' % (my_pos[0], my_pos[1], my_z))
         output.close()
-    
+
     def resids_boxplot(self, yrange=None, title=None):
         win = plot.Window()
         plot.pylab.boxplot(self.resids)

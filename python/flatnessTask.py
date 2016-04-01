@@ -18,23 +18,24 @@ def flatnessTask(sensor_id, infile, dtype='OGP', pickle_file=None):
     # Make a histogram of residual heights.
     #
     sensorData.plot_statistics(title='Sensor Flatness, %s' % infile)
-    metData.plot.save('%s_flatness_residuals_hist.png' % sensor_id)
+    metData.plot.save('%s_flatness_hist.png' % sensor_id)
     #
     # Box and whisker plot of residual heights
     #
     sensorData.resids_boxplot()
-    metData.plot.save('%s_flatness_residuals_boxplot.png' % sensor_id)
+    metData.plot.save('%s_flatness_boxplot.png' % sensor_id)
     #
     # Quantile table
     #
-    sensorData.quantile_table(outfile='%s_flatness_quantile_table.txt' % sensor_id)
+    sensorData.quantile_table(outfile='%s_flatness_quantile_table.txt'
+                              % sensor_id)
     #
     # Surface plots
     #
     azims = (10, 45)
     for azim in azims:
         sensorData.flatness_plot(azim=azim)
-        metData.plot.save('%s_flatness_residuals_point_cloud_azim_%i.png' 
+        metData.plot.save('%s_flatness_point_cloud_azim_%i.png'
                           % (sensor_id, azim))
 
     if pickle_file is not None:

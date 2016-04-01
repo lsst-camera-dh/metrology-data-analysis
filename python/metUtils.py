@@ -1,7 +1,47 @@
 import os
+import glob
 import fnmatch
+import lcatr.schema
 from DataCatalog import DataCatalog
 import siteUtils
+
+def aggregate_filerefs(producer, testtype, origin, dp_mapping=None):
+    """
+    Aggregate the filerefs for the metrology data products and return
+    them as a python list.
+    """
+    if dp_mapping is None:
+        dp_mapping = dict(BOXPLOT='boxplot',
+                          HISTOGRAM='hist',
+                          POINT_CLOUD_10='point_cloud_azim_10',
+                          POINT_CLOUD_45='point_cloud_azim_45',
+                          RESIDUALS='residuals',
+                          QUANTILE_TABLE='quantile_table')
+
+    # Common metadata fields for all data products.
+    ccd_vendor = siteUtils.getCcdVendor()
+    sensor_id = siteUtils.getUnitId()
+    md = siteUtils.DataCatalogMetadata(CCD_MANU=ccd_vendor,
+                                       LSST_NUM=sensor_id,
+                                       PRODUCER=producer,
+                                       ORIGIN=origin,
+                                       TESTTYPE=testtype,
+                                       TEST_CATEGORY='MET')
+
+    # Create filerefs for each data product, adding the file-specific
+    # data product metadata.
+    tt_ext = testtype.lower()
+    results = []
+    for dp, ext in dp_mapping.items():
+        pattern = '%(sensor_id)s_%(tt_ext)s_*%(ext)s.*'% locals()
+        print "glob pattern", pattern
+        dp_files = glob.glob(pattern)
+        print "dp_files:", dp_files
+        results.extend([lcatr.schema.fileref.make(dp_file,
+                                                  metadata=md(DATA_PRODUCT=dp))
+                        for dp_file in dp_files])
+
+    return results
 
 def _folder(sensor_id, root_folder='LSST/vendorData'):
     ccd_manu = sensor_id.split('-')[0]

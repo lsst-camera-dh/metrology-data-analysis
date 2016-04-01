@@ -6,8 +6,7 @@ from MetrologyData import md_factory
 
 producer = 'SR-MET-05'
 testtype = 'FLATNESS'
-origin = 'SLAC'
-results = metUtils.aggregate_filerefs(producer, testtype, origin)
+results = metUtils.aggregate_filerefs(producer, testtype)
 
 sensorData = md_factory.load('flatness.pickle')
 results.append(lcatr.schema.valid(lcatr.schema.get('flatness'),

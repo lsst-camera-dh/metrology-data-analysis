@@ -5,11 +5,14 @@ import lcatr.schema
 from DataCatalog import DataCatalog
 import siteUtils
 
-def aggregate_filerefs(producer, testtype, origin, dp_mapping=None):
+def aggregate_filerefs(producer, testtype, origin=None, dp_mapping=None):
     """
     Aggregate the filerefs for the metrology data products and return
     them as a python list.
     """
+    if origin is None:
+        origin = siteUtils.getSiteName()
+
     if dp_mapping is None:
         dp_mapping = dict(BOXPLOT='boxplot',
                           HISTOGRAM='hist',

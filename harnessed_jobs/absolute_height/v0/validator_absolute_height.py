@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 import os
-import glob
 import numpy as np
 import lcatr.schema
 import siteUtils
+import metUtils
 from MetrologyData import md_factory
 
-sensor_id = siteUtils.getUnitId()
 ccd_vendor = siteUtils.getCcdVendor()
 
-png_files = glob.glob('%(sensor_id)s_abs_height*.png'% locals())
-results = [lcatr.schema.fileref.make(x) for x in png_files]
-
-txt_files = glob.glob('%(sensor_id)s_abs_height*.txt'% locals())
-results.extend([lcatr.schema.fileref.make(x) for x in txt_files])
+producer = 'SR-MET-6'
+testtype = 'ABS_HEIGHT'
+results = metUtils.aggregate_filerefs(producer, testtype)
 
 #
 # Extract numerical results from pickled MetrologyData object, if it exists.

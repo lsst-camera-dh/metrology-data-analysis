@@ -10,8 +10,7 @@ ccd_vendor = siteUtils.getCcdVendor()
 
 producer = 'SR-MET-05'
 testtype = 'ABS_HEIGHT'
-origin = 'SLAC'
-results = metUtils.aggregate_filerefs(producer, testtype, origin)
+results = metUtils.aggregate_filerefs(producer, testtype)
 
 #
 # Extract numerical results from pickled MetrologyData object, if it exists.

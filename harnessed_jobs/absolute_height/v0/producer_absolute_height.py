@@ -5,7 +5,7 @@ import siteUtils
 #import metUtils
 from absoluteHeightTask import absoluteHeightTask
 
-os.system("rsync -r LSSTuser@172.17.100.2:jobHarness/jh_stage/e2v-CCD/An-e2v-CCD/\* /home/LSSTuser/jobHarness/jh_stage/e2v-CCD/")
+#os.system("rsync -r LSSTuser@172.17.100.2:jobHarness/jh_stage/e2v-CCD/An-e2v-CCD/\* /home/LSSTuser/jobHarness/jh_stage/e2v-CCD/")
 
 sensor_id = siteUtils.getUnitId()
 ccd_vendor = siteUtils.getCcdVendor()

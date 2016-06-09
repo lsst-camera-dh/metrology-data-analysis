@@ -49,8 +49,8 @@ def aggregate_filerefs(producer, testtype, origin=None, dp_mapping=None):
 def _folder(sensor_id, root_folder='LSST/vendorData'):
     # CCD manufacturer is specified differently in the LSST/vendorData
     # and LSST/mirror/SLAC-prod/prod folders, e.g., 'ITL' vs
-    # 'ITL-CCD', so just use a wildcard.
-    ccd_manu = '*'
+    # 'ITL-CCD', so append a wildcard: 'ITL*'.
+    ccd_manu = sensor_id.split('-')[0] + '*'
     my_folder = os.path.join(root_folder, ccd_manu, sensor_id)
     return my_folder
 

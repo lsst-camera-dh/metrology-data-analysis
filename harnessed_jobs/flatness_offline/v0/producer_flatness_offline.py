@@ -15,6 +15,7 @@ patterns = dict(e2v='*CT100*.csv', ITL='*.txt')
 # are the same for each delivery.
 #
 met_file = metUtils.get_met_scan_data(sensor_id, patterns[ccd_vendor],
+                                      root_folder='LSST/mirror/SLAC-prod/prod',
                                       sort=True)[-1]
 
 flatnessTask(sensor_id, met_file, dtype=ccd_vendor,

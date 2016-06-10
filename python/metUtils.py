@@ -47,14 +47,22 @@ def aggregate_filerefs(producer, testtype, origin=None, dp_mapping=None):
     return results
 
 def _folder(sensor_id, root_folder='LSST/vendorData'):
-    ccd_manu = sensor_id.split('-')[0]
+    # CCD manufacturer is specified differently in the LSST/vendorData
+    # and LSST/mirror/SLAC-prod/prod folders, e.g., 'ITL' vs
+    # 'ITL-CCD', so append a wildcard: 'ITL*'.
+    ccd_manu = sensor_id.split('-')[0] + '*'
     my_folder = os.path.join(root_folder, ccd_manu, sensor_id)
     return my_folder
 
 def get_met_scan_data(sensor_id, pattern, root_folder='LSST/vendorData',
                       site='slac.lca.archive', sort=False,
                       description='Metrology Scan Files:'):
-    dc = DataCatalog(folder=_folder(sensor_id), site=site)
+    try:
+        folder = os.environ['LCATR_DATACATALOG_FOLDER']
+    except KeyError:
+        folder = _folder(sensor_id, root_folder=root_folder)
+
+    dc = DataCatalog(folder=folder, site=site)
 
     query = '&&'.join(('DATA_PRODUCT=="MET_SCAN"',
                        'TEST_CATEGORY=="MET"',

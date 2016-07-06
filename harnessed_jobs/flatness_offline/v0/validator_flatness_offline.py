@@ -9,9 +9,10 @@ testtype = 'FLATNESS'
 results = metUtils.aggregate_filerefs(producer, testtype)
 
 sensorData = md_factory.load('flatness.pickle')
-results.append(lcatr.schema.valid(lcatr.schema.get('flatness'),
-                                  residual_025=sensorData.quantiles['0.025'],
-                                  residual_975=sensorData.quantiles['0.975']))
+# Compute the central 95% quantile of the residual flatness values.
+peak_value_95 = sensorData.quantiles['0.975'] - sensorData.quantiles['0.025']
+results.append(lcatr.schema.valid(lcatr.schema.get('sensor_flatness'),
+                                  peak_valley_95 = peak_value_95))
 
 results.append(siteUtils.packageVersions())
 

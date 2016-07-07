@@ -1,3 +1,11 @@
+import os
+
+# The following is needed so that matplotlib can write to .matplotlib
+os.environ['MPLCONFIGDIR'] = os.curdir
+import matplotlib
+# For batch-processing, use Agg backend to avoid needing an X11 connection.
+matplotlib.use('Agg')
+
 import sys
 import pickle
 import numpy as np
@@ -7,7 +15,7 @@ import lsst.eotest.sensor.pylab_plotter as plot
 
 class XyzPlane(object):
     """
-    Function object class to represent a plane as a function 
+    Function object class to represent a plane as a function
     of x, y coordinates, where z = a*x + b*y + c.
     """
     def __init__(self, a, b, c):
@@ -23,7 +31,7 @@ def xyz_plane(positions, a, b, c):
 
 class PointCloud(object):
     """
-    Abstraction for x, y, z points representing a metrology scan of a 
+    Abstraction for x, y, z points representing a metrology scan of a
     surface.
     """
     def __init__(self, x, y, z):
@@ -220,7 +228,7 @@ class MetrologyData(object):
         win = plot.histogram(dz[index],
                              xname=r'$z - z_{\rm model}$ $(\mu{\rm m})$',
                              yname='entries/bin')
-        plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip' 
+        plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip'
                             % (mean, stdev, nsigma),
                             (0.05, 0.8), xycoords='axes fraction')
         if title is None:
@@ -266,7 +274,7 @@ class OgpData(MetrologyData):
         # Identify sensor and reference point clouds by mean y-values:
         # The sensor Contours are all in the range [0,42] and the reference
         # point clouds are outside this range.  The test below is based
-        # on the mean y coordinates of the Contours, so the implicit 
+        # on the mean y coordinates of the Contours, so the implicit
         # assumption is that no single Contour will cross between reference
         # blocks.
         yavgs = sorted([np.mean(cloud.y) for cloud in data.values()])

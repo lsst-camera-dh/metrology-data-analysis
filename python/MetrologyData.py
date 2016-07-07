@@ -52,7 +52,7 @@ class PointCloud(object):
         functor set to the fit parameters.
         """
         positions = np.array(zip(self.x, self.y))
-        
+
         # Initial fit
         pars, _ = scipy.optimize.curve_fit(xyz_plane, positions, self.z, p0=p0)
         dz = xyz_plane(positions, *pars) - self.z

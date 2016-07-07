@@ -17,18 +17,14 @@ results = metUtils.aggregate_filerefs(producer, testtype)
 #
 pickle_file = 'abs_height.pickle'
 if os.path.isfile(pickle_file):
-    ZNOM = dict(ITL=12998., e2v=13000.)
     sensorData = md_factory.load(pickle_file)
-    dzdx, dzdy, z0 = sensorData.plane_functor.pars
-    zmean = np.mean(sensorData.sensor.z)
-    znom = ZNOM[ccd_vendor]
-    znom_residual_025 = sensorData.quantiles['0.025']
-    znom_residual_975 = sensorData.quantiles['0.975']
-    results.append(lcatr.schema.valid(lcatr.schema.get('absolute_height'),
-                                      dzdx=dzdx, dzdy=dzdy, z0=z0,
-                                      zmean=zmean, znom=znom,
-                                      znom_residual_025=znom_residual_025,
-                                      znom_residual_975=znom_residual_975))
+    z_median_m_13 = np.median(sensorData.sensor.z) - 13000.
+    z_quantile_0025 = sensorData.quantiles['0.025']
+    z_quantile_0975 = sensorData.quantiles['0.975']
+    results.append(lcatr.schema.valid(lcatr.schema.get('sensor_abs_height'),
+                                      z_median_m_13=z_median_m_13,
+                                      z_quantile_0025=z_quantile_0025,
+                                      z_quantile_0975=z_quantile_0975))
 
 results.append(siteUtils.packageVersions())
 

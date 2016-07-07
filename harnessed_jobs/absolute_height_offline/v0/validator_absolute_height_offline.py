@@ -23,8 +23,8 @@ if os.path.isfile(pickle_file):
     z_quantile_0975 = sensorData.quantiles['0.975']
     results.append(lcatr.schema.valid(lcatr.schema.get('sensor_abs_height'),
                                       z_median_m_13=z_median_m_13,
-                                      z_quantile_0975=z_quantile_0975,
-                                      z_quantile_0025=z_quantile_0025))
+                                      z_quantile_0025=z_quantile_0025,
+                                      z_quantile_0975=z_quantile_0975))
 
 results.append(siteUtils.packageVersions())
 

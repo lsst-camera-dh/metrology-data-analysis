@@ -37,9 +37,7 @@ def aggregate_filerefs(producer, testtype, origin=None, dp_mapping=None):
     results = []
     for dp, ext in dp_mapping.items():
         pattern = '%(sensor_id)s_%(tt_ext)s_*%(ext)s.*'% locals()
-        print "glob pattern", pattern
         dp_files = glob.glob(pattern)
-        print "dp_files:", dp_files
         results.extend([lcatr.schema.fileref.make(dp_file,
                                                   metadata=md(DATA_PRODUCT=dp))
                         for dp_file in dp_files])

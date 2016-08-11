@@ -3,8 +3,9 @@ import os
 # The following is needed so that matplotlib can write to .matplotlib
 os.environ['MPLCONFIGDIR'] = os.curdir
 import matplotlib
-# For batch-processing, use Agg backend to avoid needing an X11 connection.
-matplotlib.use('Agg')
+# For batch-processing, use cairo backend to avoid needing an X11 connection.
+# (The Agg backend does not work with 3D plots in matplotlib 1.5.1)
+matplotlib.use('cairo')
 
 import sys
 import pickle

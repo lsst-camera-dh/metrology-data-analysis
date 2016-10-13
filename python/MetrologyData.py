@@ -301,18 +301,47 @@ class ItlData(MetrologyData):
         super(ItlData, self).__init__(infile)
 
     def _read_data(self):
-        # The ITL metrology data just comprises x, y, z points scanned
-        # over the sensor. The piston and tilt relative to the 13mm
-        # ZNOM has presumably been subtracted off.
+        # The ITL metrology data comprise x, y, z points scanned
+        # over the sensor (indicated by lines starting with ImagePoint)
+        # plus (in most files) measurements of positions on the four
+        # gauge blocks at the start of each scan line (indicated by lines
+        # starting with STANDARD_1, STANDARD_2, STANDARD_3, or STANDARD_4).
+        # Any trending of the z heights of these points is interpreted as
+        # drift of the measurement system.  If these entries are present,
+        # we 1) define the average of the first 4 STANDARD_# Z Position
+        # entries as the reference and for each row of the scan after the
+        # first subtract the difference between the average of the
+        # corresponding Z Positions for that row and the reference value.
         data = dict([(key, []) for key in 'XYZ'])
+        currow = -1
+        refcount = 0
+
         for line in open(self.infile):
-            if line.startswith('ImagePoint'):
+            if line.startswith('Row'):
+                refcount = 0
+                currow += 1
+                zcurrow = 0.
+            elif line.startswith('STANDARD_1 Z') or line.startswith('STANDARD_2 Z') or line.startswith('STANDARD_3 Z') or line.startswith('STANDARD_4 Z'):
+                tokens = line.split()
+                zcurrow += float(tokens[3])
+                refcount += 1
+                if (refcount == 4):
+                    zcurrow = zcurrow/4
+                    if currow == 0:
+                        zref = zcurrow
+                    refcount == 0
+                    print '  z drift:  ' + repr(zcurrow - zref) + ' currow:  ' + repr(currow)
+            elif line.startswith('ImagePoint'):
                 tokens = line.split()
                 if len(tokens) > 5:
                     # Omit this line since it is part of the scan
                     # summary data and not a scan point.
                     continue
-                data[tokens[1]].append(float(tokens[3]))
+                value = float(tokens[3])
+                if tokens[1] == 'Z':
+                    #value = value - zref[currow] + zref[0]
+                    value = value - zcurrow + zref
+                data[tokens[1]].append(value)
         self.sensor = PointCloud(data['X'], data['Y'], data['Z'])
         # Convert z from mm to micron
         self.sensor.z *= 1e3
@@ -350,3 +379,7 @@ class MetrologyDataFactory(object):
         return pickle.load(open(pickle_file))
 
 md_factory = MetrologyDataFactory()
+
+if __name__ == '__main__':
+    a = ItlData("/nfs/farm/g/lsst/u1/vendorData/ITL/ITL-3800C-068/Prod/6418/data/LSST/sn20862/ID068_SN20862_metrology/ID068_SN20862_Z_Inspect_LSST_STA3800_Z_Inspect_R4.0;sn20862.txt")
+    b = ItlData("/nfs/farm/g/lsst/u1/vendorData/ITL/ITL-3800C-072/Prod/6221/data/LSST/sn20971/ID072_SN20971_metrology/ID072_SN20971_Z_Inspect_LSST_STA3800_Z_Inspect_R4.0;sn20971.txt")

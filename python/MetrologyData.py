@@ -329,9 +329,8 @@ class E2vData(MetrologyData):
             data['Y'].append(float(tokens[1]))
             data['Z'].append(float(tokens[2]))
         self.sensor = PointCloud(data['X'], data['Y'], data['Z'])
-        # Convert x, y from micron to mm
-        self.sensor.x /= 1e3
-        self.sensor.y /= 1e3
+        # Convert z from mm to micron
+        self.sensor.z *= 1e3
 
 class MetrologyDataFactory(object):
     _prototypes = dict(OGP=OgpData, ITL=ItlData, e2v=E2vData)

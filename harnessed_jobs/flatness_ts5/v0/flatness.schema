@@ -1,0 +1,7 @@
+# -*- python -*-
+{
+    'schema_name' : 'flatness',
+    'schema_version' : 0,
+    'residual_025' : float,
+    'residual_975' : float
+}

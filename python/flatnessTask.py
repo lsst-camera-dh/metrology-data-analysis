@@ -42,5 +42,5 @@ def flatnessTask(sensor_id, infile, dtype='OGP', pickle_file=None):
         sensorData.persist(pickle_file)
 
 if __name__ == '__main__':
-    flatnessTask('ETU01', '/nfs/farm/g/lsst/u/digel/lsst/takacs/ETU01_Tcycle_20161018181708_19C.csv', \
+    flatnessTask('ETU01', '/nfs/farm/g/lsst/u/digel/lsst/takacs/LCA-10753_RSA-002_CTE_ETU_WarmColdMet_4292D_2016Nov18-112532_20C.csv', \
         dtype='TS5', pickle_file=None)

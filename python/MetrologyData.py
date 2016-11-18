@@ -81,7 +81,7 @@ class MetrologyData(object):
     """
     def __init__(self, infile):
         self.infile = infile
-        self._read_data(infile)
+        self._read_data()
         self.resids = None
 
     def set_ref_plane(self, plane_functor, zoffset=0):
@@ -303,13 +303,21 @@ class Ts5Data(MetrologyData):
     def __init__(self, infile):
         super(Ts5Data, self).__init__(infile)
 
-    def _read_data(self,infile):
+    def _read_data(self):
         # The TS5 metrology data are in csv files.  The first three entries on each
         # line are commanded x and y and the measured (summed) z, in mm.
         # Here to allow option of differencing two data sets, infile is
         # assumed to be a list of 1 or 2 elements
         data = dict([(key, []) for key in 'XYZ'])
-        for line in open(self.infile[0]):
+        
+        # Test to see whether a single string or a list of two files has been
+        # passed for infile
+        if type(self.infile) == type('abc'):
+            filename = self.infile
+        else:
+            filename = self.infile[0]
+        
+        for line in open(filename):
             if not(line.startswith('#')):
                 tokens = line.split(',')
                 data['X'].append(float(tokens[0]))
@@ -321,7 +329,7 @@ class Ts5Data(MetrologyData):
         # in mind that the grid points included may not be the same
         # in both files
         data2 = dict([(key, []) for key in 'XYZ'])
-        if (len(infile) == 2):
+        if (len(self.infile) == 2):
             for line in open(self.infile[1]):
                 if not(line.startswith('#')):
                     tokens = line.split(',')

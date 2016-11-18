@@ -5,38 +5,18 @@ import siteUtils
 import metUtils
 from flatnessTask import flatnessTask
 
-#os.system("rsync -r LSSTuser@172.17.100.2:jobHarness/jh_stage/e2v-CCD/An-e2v-CCD/\* /home/LSSTuser/jobHarness/jh_stage/e2v-CCD/")
-
 raft_id = siteUtils.getUnitId()
-#ccd_vendor = siteUtils.getCcdVendor()
 
-# Find the TS5 metrology scan data
-#flat_file = siteUtils.dependency_glob('*/*/*_AbsHeight*.DAT',
-direcs = siteUtils.dependency_glob('*',
-                                   jobname=siteUtils.getProcessName('TS5_Metrology_Upload'),
-                                   description='TS5 metrology scan:')
-print "direcs:"
-print direcs
-print "------------------------------"
+# Find the TS5 metrology scan data by constructing the name of the data-taking step
+acqjobname = siteUtils.getJobName().replace('_Analysis','')
+if ("Room_Temp_Measurement" in acqjobname and not "After" in acqjobname) :
+    acqjobname = "Pump_and_" + acqjobname
 
-dimdir = ""
-for line in direcs :
-    if "Metrology_Upload" in line :
-        dimdir = line
-
-print 'TS5 metrology directory = %s' % dimdir
-
-
-flat_file = ""
-
-for root, dirs, flat_files in os.walk(dimdir):
-    for file in flat_files:
-        if file.endswith(".csv"):
-             flat_file=os.path.join(root, file)
-
-#flat_file = flat_file[0]  # siteUtils returns flat_file as a list with one member;
-    # here take the first (and only) member
-
+# siteUtils returns flat_file as a list with one member;
+# here take the first (and only) member
+flat_file = siteUtils.dependency_glob('*.csv',
+                                      jobname=siteUtils.getProcessName(acqjobname),
+                                      description='')[0]
 print "flat_file = %s" % flat_file
 
 # The dtype below indicates the source of the data, which is always TS5

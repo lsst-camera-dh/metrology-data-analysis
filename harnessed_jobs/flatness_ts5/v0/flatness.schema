@@ -1,7 +1,8 @@
 # -*- python -*-
 {
-    'schema_name' : 'flatness',
+    'schema_name' : 'raft_flatness',
     'schema_version' : 0,
     'residual_025' : float,
-    'residual_975' : float
+    'residual_975' : float,
+    'peak_valley_95' : float
 }

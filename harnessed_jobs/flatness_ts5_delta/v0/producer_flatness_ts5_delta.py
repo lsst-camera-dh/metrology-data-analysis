@@ -7,17 +7,16 @@ from flatnessTask import flatnessTask
 
 raft_id = siteUtils.getUnitId()
 
-# Find the TS5 metrology scan data by constructing the name of the data-taking step
-acqjobname = siteUtils.getJobName().replace('_Analysis','')
-if ("Room_Temp_Measurement" in acqjobname and not "After" in acqjobname) :
-    acqjobname = "Pump_and_" + acqjobname
+# Find the TS5 metrology scan data for each of the measurement steps
+acqjobnames = ['Pump_and_Room_Temp_Measurement', 'Cooling_Measurement-1',
+                'Cooling_Measurement-2', 'Cold_Measurement',
+                'Room_Temp_Measurement_After_Thermal_Cycle']
 
-# siteUtils returns flat_file as a list with one member;
-# here take the first (and only) member
-flat_file = siteUtils.dependency_glob('*.csv',
-                                      jobname=siteUtils.getProcessName(acqjobname),
-                                      description='')[0]
-print "flat_file = %s" % flat_file
+files = []
+for acqjobname in acqjobnames: 
+    files.append(siteUtils.dependency_glob('*.csv',
+                                           jobname=siteUtils.getProcessName(acqjobname),
+                                           description='')[0])
 
 # The dtype below indicates the source of the data, which is always TS5
-flatnessTask_delta(raft_id, flat_file, dtype='TS5', pickle_file='flatness_ts5_delta.pickle')
+flatnessTask_delta(raft_id, files, dtype='TS5', pickle_file='flatness_ts5_delta.pickle')

@@ -3,7 +3,7 @@ import sys
 import os
 import siteUtils
 import metUtils
-from flatnessTask import flatnessTask
+from flatnessTask_delta import flatnessTask_delta
 
 raft_id = siteUtils.getUnitId()
 

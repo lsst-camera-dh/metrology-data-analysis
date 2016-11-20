@@ -1,6 +1,6 @@
 # -*- python -*-
 {
-    'schema_name' : 'raft_flatness_delta',
+    'schema_name' : 'ts5_flatness_delta',
     'schema_version' : 0,
     'residual_025' : float,
     'residual_975' : float,

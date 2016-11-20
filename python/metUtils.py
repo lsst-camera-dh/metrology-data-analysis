@@ -64,7 +64,6 @@ def aggregate_filerefs_ts5(producer, testtype, origin=None, dp_mapping=None):
     ccd_vendor = siteUtils.getCcdVendor()
     raft_id = siteUtils.getUnitId()
     md = siteUtils.DataCatalogMetadata(CCD_MANU=ccd_vendor,
-                                       RAFTNAME = raftname,
                                        LSST_NUM=raft_id,
                                        PRODUCER=producer,
                                        ORIGIN=origin,

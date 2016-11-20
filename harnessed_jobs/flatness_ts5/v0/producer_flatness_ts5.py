@@ -14,10 +14,9 @@ if ("Room_Temp_Measurement" in acqjobname and not "After" in acqjobname) :
 
 # siteUtils returns flat_file as a list with one member;
 # here take the first (and only) member
-flat_file = siteUtils.dependency_glob('*.csv',
+infile = siteUtils.dependency_glob('*.csv',
                                       jobname=siteUtils.getProcessName(acqjobname),
                                       description='')[0]
-print "flat_file = %s" % flat_file
+print "infile = %s" % infile
 
-# The dtype below indicates the source of the data, which is always TS5
-flatnessTask(raft_id, flat_file, dtype='TS5', pickle_file='flatness_ts5.pickle')
+flatnessTask(raft_id, infile, dtype='TS5', pickle_file='flatness_ts5.pickle')

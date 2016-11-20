@@ -1,0 +1,18 @@
+# -*- python -*-
+{
+    'schema_name' : 'raft_flatness',
+    'schema_version' : 0,
+    'residual_025' : float,
+    'residual_975' : float,
+    'peak_valley_95' : float,
+    'start_time' : float,
+    'end_time' : float,
+    'temp_A_start' : float,
+    'temp_B_start' : float,
+    'temp_C_start' : float,
+    'temp_D_start' : float,
+    'temp_A_end' : float,
+    'temp_B_end' : float,
+    'temp_C_end' : float,
+    'temp_D_end' : float
+}

@@ -67,22 +67,22 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     #
     # Write residual points relative to LSF surface.
     #
-    outfile = '%s_flatness_residuals_delta.txt' % raft_id
+    outfile = '%s_flatness_delta_residuals.txt' % raft_id
     raftDataDelta.write_residuals(outfile)
     #
     # Make a histogram of residual heights.
     #
     raftDataDelta.plot_statistics(title='Raft Flatness, %s' % infile)
-    metData.plot.save('%s_flatness_hist_delta.png' % raft_id)
+    metData.plot.save('%s_flatness_delta_hist.png' % raft_id)
     #
     # Box and whisker plot of residual heights
     #
     raftDataDelta.resids_boxplot()
-    metData.plot.save('%s_flatness_boxplot_delta.png' % raft_id)
+    metData.plot.save('%s_flatness_delta_boxplot.png' % raft_id)
     #
     # Quantile table
     #
-    raftDataDelta.quantile_table(outfile='%s_flatness_quantile_table_delta.txt'
+    raftDataDelta.quantile_table(outfile='%s_flatness_delta_quantile_table.txt'
                           % raft_id)
     #
     # Surface plots

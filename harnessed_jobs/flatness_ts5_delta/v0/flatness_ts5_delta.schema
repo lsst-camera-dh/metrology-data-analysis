@@ -4,5 +4,8 @@
     'schema_version' : 0,
     'residual_025' : float,
     'residual_975' : float,
-    'peak_valley_95' : float
+    'peak_valley_95' : float,
+    'peak_valley_100': float,
+    'flatness_quantile' : str,
+    'flatness_z' : str
 }

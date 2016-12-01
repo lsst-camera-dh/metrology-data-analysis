@@ -4,7 +4,9 @@ import os
 os.environ['MPLCONFIGDIR'] = os.curdir
 import matplotlib
 # For batch-processing, use cairo backend to avoid needing an X11 connection.
-# (The Agg backend does not work with 3D plots in matplotlib 1.5.1)
+# (The Agg backend does not work with 3D plots in matplotlib 1.5.1. The cairo
+# backend uses vector fonts and does not render Greek letters or some other
+# LaTeX math formatting.)
 matplotlib.use('cairo')
 
 import sys
@@ -183,7 +185,7 @@ class MetrologyData(object):
             output = open(outfile, 'w')
         sorted_resids = sorted(self.resids)
         npts = len(sorted_resids)
-        output.write('quantile     z (um)\n')
+        output.write('quantile     z (micron)\n')
         for quantile in quantiles:
             index = min(int(npts*quantile), npts-1)
             output.write( ' %.3f   %12.6f\n' % (quantile, sorted_resids[index]))
@@ -204,7 +206,7 @@ class MetrologyData(object):
     def resids_boxplot(self, yrange=None, title=None):
         win = plot.Window()
         plot.pylab.boxplot(self.resids)
-        plot.pylab.ylabel(r'$\mu$m')
+        plot.pylab.ylabel('micron')
         plot.setAxis(yrange=yrange)
         if title is None:
             title = self.infile
@@ -227,7 +229,8 @@ class MetrologyData(object):
         mean, stdev = np.mean(dz[index]), np.std(dz[index])
 
         win = plot.histogram(dz[index],
-                             xname=r'$z - z_{\rm model}$ $(\mu{\rm m})$',
+                             #xname=r'$z - z_{\rm model}$ $(\mu{\rm m})$',
+                             xname=r'z - $z_{\rm model}$ (micron)',
                              yname='entries/bin')
         plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip'
                             % (mean, stdev, nsigma),

@@ -11,14 +11,15 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     # the same for the different data sets.  It does keep track of
     # which scan points are missing in the various data sets.
 
-    # From Peter:  "This step would take the files from the previous steps, subtract them, and look at the difference residuals: histogram, quantiles, plots. "
+    # From Peter:  "This step would take the files from the previous steps,
+    # subtract them, and look at the difference residuals: histogram,
+    # quantiles, plots."
 
     # Process each file, evaluating temperature, time, and standard
     # deviation of flatness
 
-    stdev = [] 
+    stdev = []
     temperature = []
-    #datestr = []
     nsigma = 4
 
     for infile in infiles:
@@ -38,7 +39,6 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
         # Parse the file name to get the temperature and time stamp
         pieces = infile.split('_')
         nelem = len(pieces)
-        #datestr.append(pieces[nelem-2])
         loc = pieces[nelem-1].find('C')
         temperature.append(pieces[nelem-1][0:loc])
 
@@ -62,8 +62,7 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     raftDataDelta.set_ref_plane(raftDataDelta.sensor.xyzPlane_fit(), zoffset=0)
     dzDelta = raftDataDelta.resids
     print("flatness resid:  ", np.std(dzDelta))
-        
-    #
+
     #
     # Write residual points relative to LSF surface.
     #
@@ -72,26 +71,29 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     #
     # Make a histogram of residual heights.
     #
-    raftDataDelta.plot_statistics(title='Raft Flatness, %s' % infile)
+    #raftDataDelta.plot_statistics(title='Raft Flatness, %s' % infile)
+    raftDataDelta.plot_statistics(title='Raft Flatness, %s' % raft_id)
     metData.plot.save('%s_flatness_delta_hist.png' % raft_id)
     #
     # Box and whisker plot of residual heights
     #
-    raftDataDelta.resids_boxplot()
+    raftDataDelta.resids_boxplot(title='Residual Box Plot, %s' % raft_id)
     metData.plot.save('%s_flatness_delta_boxplot.png' % raft_id)
     #
     # Quantile table
     #
     raftDataDelta.quantile_table(outfile='%s_flatness_delta_quantile_table.txt'
-                          % raft_id)
+                                 % raft_id)
+    print(raftDataDelta.quantiles)
     #
     # Surface plots
     #
     azims = (10, 45)
     for azim in azims:
-        raftDataDelta.flatness_plot(azim=azim,title=infiles[locWarm] + ' ' + infiles[locCold])
+        # raftDataDelta.flatness_plot(azim=azim,title=infiles[locWarm] + ' ' + infiles[locCold])
+        raftDataDelta.flatness_plot(azim=azim, title='Surface Plot (Warm-Cold)')
         metData.plot.save('%s_flatness_delta_point_cloud_azim_%i.png'
-                      % (raft_id, azim))
+                          % (raft_id, azim))
 
     if pickle_file is not None:
         raftDataDelta.persist(pickle_file)

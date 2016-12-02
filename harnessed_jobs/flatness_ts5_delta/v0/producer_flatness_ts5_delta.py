@@ -23,4 +23,4 @@ for acqjobname in acqjobnames:
 flatnessTask_delta(raft_id, files, dtype='TS5', pickle_file='flatness_ts5_delta.pickle')
 
 # Make the QA plot
-qaPlot(files, '%s_qa_plot.png' % raft_id, title='QA Plot: '+raft_id)
+qaPlot(files, '%s_qa_plot.png' % raft_id, title='QA Plot: %s' % raft_id)

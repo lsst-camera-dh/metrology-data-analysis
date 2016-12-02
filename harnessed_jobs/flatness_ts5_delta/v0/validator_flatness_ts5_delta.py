@@ -9,6 +9,11 @@ testtype = 'FLATNESS'
 
 results = metUtils.aggregate_filerefs_ts5(producer, testtype)
 
+# Add the QA plot to the results
+raft_id = siteUtils.getUnitId()
+qafile = glob.glob('%s_qa_plot' % raft_id)
+results.append(lcatr.schema.fileref.make(qafile))
+
 raftData = md_factory.load('flatness_ts5_delta.pickle')
 peak_valley_95 = raftData.quantiles['0.975'] - raftData.quantiles['0.025']
 peak_valley_100 = raftData.quantiles['1.000'] - raftData.quantiles['0.000']
@@ -31,6 +36,7 @@ z_str = z_str[0:len(z_str)-2]
 results.append(lcatr.schema.valid(lcatr.schema.get('ts5_raft_flatness'),
                                   flatness_quantile=quantile_str,
                                   flatness_z=z_str))
+
 
 results.append(siteUtils.packageVersions())
 

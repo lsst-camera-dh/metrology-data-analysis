@@ -4,6 +4,7 @@ import os
 import siteUtils
 import metUtils
 from flatnessTask_delta import flatnessTask_delta
+from qaPlot import qaPlot
 
 raft_id = siteUtils.getUnitId()
 
@@ -20,3 +21,6 @@ for acqjobname in acqjobnames:
 
 # The dtype below indicates the source of the data, which is always TS5
 flatnessTask_delta(raft_id, files, dtype='TS5', pickle_file='flatness_ts5_delta.pickle')
+
+# Make the QA plot
+qaPlot(files, '%s_qa_plot.png' % raft_id, title='QA Plot: '+raft_id)

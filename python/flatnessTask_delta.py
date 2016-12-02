@@ -99,9 +99,11 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
         raftDataDelta.persist(pickle_file)
 
 if __name__ == '__main__':
-    with open('ETU01_file_list.txt') as f:
+    #with open('ETU01_file_list.txt') as f:
+    with open('LCA-10753_RSA-002_files.txt') as f:
         infiles = f.read().splitlines()
 
     print(infiles)
 
-    flatnessTask_delta('ETU01', infiles, dtype='TS5', pickle_file=None)
+    #flatnessTask_delta('ETU01', infiles, dtype='TS5', pickle_file=None)
+    flatnessTask_delta('LCA-10753_RSA-002', infiles, dtype='TS5', pickle_file=None)

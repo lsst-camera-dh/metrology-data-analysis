@@ -71,7 +71,6 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     #
     # Make a histogram of residual heights.
     #
-    #raftDataDelta.plot_statistics(title='Raft Flatness, %s' % infile)
     raftDataDelta.plot_statistics(title='Raft Flatness, %s' % raft_id)
     metData.plot.save('%s_flatness_delta_hist.png' % raft_id)
     #
@@ -89,7 +88,6 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     #
     azims = (10, 45)
     for azim in azims:
-        # raftDataDelta.flatness_plot(azim=azim,title=infiles[locWarm] + ' ' + infiles[locCold])
         raftDataDelta.flatness_plot(azim=azim, title='Surface Plot (Warm-Cold)')
         metData.plot.save('%s_flatness_delta_point_cloud_azim_%i.png'
                           % (raft_id, azim))

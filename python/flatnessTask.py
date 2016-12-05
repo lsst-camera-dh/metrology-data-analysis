@@ -16,7 +16,6 @@ def flatnessTask(sensor_id, infile, dtype='OGP', pickle_file=None):
     #
     # Make a histogram of residual heights.
     #
-    #sensorData.plot_statistics(title='Sensor Flatness, %s' % infile)
     sensorData.plot_statistics(title='Flatness, %s' % sensor_id)
     metData.plot.save('%s_flatness_hist.png' % sensor_id)
     #
@@ -40,7 +39,3 @@ def flatnessTask(sensor_id, infile, dtype='OGP', pickle_file=None):
 
     if pickle_file is not None:
         sensorData.persist(pickle_file)
-
-if __name__ == '__main__':
-    flatnessTask('ETU01', '/nfs/farm/g/lsst/u/digel/lsst/takacs/LCA-10753_RSA-002_CTE_ETU_WarmColdMet_4292D_2016Nov18-112532_20C.csv', \
-        dtype='TS5', pickle_file=None)

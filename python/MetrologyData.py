@@ -229,7 +229,6 @@ class MetrologyData(object):
         mean, stdev = np.mean(dz[index]), np.std(dz[index])
 
         win = plot.histogram(dz[index],
-                             #xname=r'$z - z_{\rm model}$ $(\mu{\rm m})$',
                              xname=r'z - $z_{\rm model}$ (micron)',
                              yname='entries/bin')
         plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip'
@@ -315,13 +314,13 @@ class Ts5Data(MetrologyData):
         
         # Test to see whether a single string or a list of two files has been
         # passed for infile
-        if type(self.infile) == type('abc'):
+        if isinstance(self.infile, str):
             filename = self.infile
         else:
             filename = self.infile[0]
         
         for line in open(filename):
-            if not(line.startswith('#')):
+            if not line.startswith('#'):
                 tokens = line.split(',')
                 data['X'].append(float(tokens[0]))
                 data['Y'].append(float(tokens[1]))
@@ -332,9 +331,9 @@ class Ts5Data(MetrologyData):
         # in mind that the grid points included may not be the same
         # in both files
         data2 = dict([(key, []) for key in 'XYZ'])
-        if (len(self.infile) == 2):
+        if len(self.infile) == 2:
             for line in open(self.infile[1]):
-                if not(line.startswith('#')):
+                if not line.startswith('#'):
                     tokens = line.split(',')
                     data2['X'].append(float(tokens[0]))
                     data2['Y'].append(float(tokens[1]))

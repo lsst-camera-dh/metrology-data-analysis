@@ -11,7 +11,6 @@ matplotlib.use('cairo')
 
 import sys
 import numpy as np
-#import lsst.eotest.sensor.pylab_plotter as plot
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import datetime
@@ -57,8 +56,3 @@ def qaPlot(infiles, outfile, title=None):
     axarr[1].set_xlabel('Time')
 
     plt.savefig(outfile)
-
-if __name__ == '__main__':
-    with open('LCA-10753_RSA-002_files.txt') as f:
-        infiles = f.read().splitlines()
-        qaPlot(infiles, 'qaPlot.png', title='QA Plot')

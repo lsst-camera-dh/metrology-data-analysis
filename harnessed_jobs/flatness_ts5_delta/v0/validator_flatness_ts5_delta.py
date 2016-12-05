@@ -23,7 +23,7 @@ md = siteUtils.DataCatalogMetadata(CCD_MANU=siteUtils.getCcdVendor(),
                                    TESTTYPE=testtype,
                                    TEST_CATEGORY='MET')
 
-results.extend([lcatr.schema.fileref.make(qafile,metadata=md(DATA_PRODUCT='QA_PLOT'))])
+results.extend([lcatr.schema.fileref.make(qafile, metadata=md(DATA_PRODUCT='QA_PLOT'))])
 
 raftData = md_factory.load('flatness_ts5_delta.pickle')
 peak_valley_95 = raftData.quantiles['0.975'] - raftData.quantiles['0.025']

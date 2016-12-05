@@ -12,9 +12,10 @@ results = metUtils.aggregate_filerefs_ts5(producer, testtype)
 
 # Add the QA plot to the results
 raft_id = siteUtils.getUnitId()
-qafile = glob.glob('*%s_qa_plot.png' % raft_id)[0]
-print('qafile:  %s' % qafile)
-print('raft_id:  %s' % raft_id)
+qafile = glob.glob('*_qa_plot.png')[0]
+#print('qafile:  %s' % qafile)
+#print('raft_id:  %s' % raft_id)
+
 md = siteUtils.DataCatalogMetadata(CCD_MANU=siteUtils.getCcdVendor(),
                                    LSST_NUM=siteUtils.getUnitId(),
                                    PRODUCER=producer,

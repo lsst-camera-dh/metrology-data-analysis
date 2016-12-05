@@ -61,7 +61,7 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     # For positions that are in common in the scans evaluate the difference in z
     raftDataDelta.set_ref_plane(raftDataDelta.sensor.xyzPlane_fit(), zoffset=0)
     dzDelta = raftDataDelta.resids
-    print("flatness resid:  ", np.std(dzDelta))
+    # print("flatness resid:  ", np.std(dzDelta))
 
     #
     # Write residual points relative to LSF surface.
@@ -84,7 +84,6 @@ def flatnessTask_delta(raft_id, infiles, dtype='OGP', pickle_file=None):
     #
     raftDataDelta.quantile_table(outfile='%s_flatness_delta_quantile_table.txt'
                                  % raft_id)
-    print(raftDataDelta.quantiles)
     #
     # Surface plots
     #

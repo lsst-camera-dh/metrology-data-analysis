@@ -11,9 +11,10 @@ matplotlib.use('cairo')
 
 import sys
 import numpy as np
-import lsst.eotest.sensor.pylab_plotter as plot
-#from matplotlib import dates
-#import datetime
+#import lsst.eotest.sensor.pylab_plotter as plot
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import datetime
 
 def qaPlot(infiles, outfile, title=None):
     # Read the TS5 metrology files specified in infiles, construct time history
@@ -37,33 +38,25 @@ def qaPlot(infiles, outfile, title=None):
                 # Divide the time stamp by 1000 to convert it to seconds
                 data['T'].append(float(tokens[14])/1000.)
 
-    #dts = map(datetime.datetime.fromtimestamp, data['T'])
-    #fds = dates.date2num(dts)
-    #hfmt = dates.DateFormatter('%m/%d %H:%M')
+    win, axarr = plt.subplots(2, sharex=True)
+    times = [datetime.datetime.fromtimestamp(t) for t in data['T']]
 
-    win = plot.Window()
-    plot.pylab.subplot(211)
-    plot.pylab.plot(data['T'], data['A'], 'ro', label='A')
-    plot.pylab.plot(data['T'], data['B'], 'go', label='B')
-    plot.pylab.plot(data['T'], data['C'], 'bo', label='C')
-    plot.pylab.plot(data['T'], data['D'], 'ko', label='D')
-    plot.pylab.ylabel('Temp. (C)')
+    axarr[0].plot(times, data['A'], 'ro', label='A')
+    axarr[0].plot(times, data['B'], 'go', label='B')
+    axarr[0].plot(times, data['C'], 'bo', label='C')
+    axarr[0].plot(times, data['D'], 'ko', label='D')
+    axarr[0].set_ylabel('Temp. (C)')
     if title is None:
         title = 'QA Plot'
-    plot.pylab.title(title)
+    axarr[0].set_title(title)
 
-    #plot.pylab.xaxis.set_major_locator(dates.MinuteLocator())
-    #plot.pylab.xaxis.set_major_formatter(hfmt)
+    axarr[1].plot(times, data['P'], 'ro')
+    hfmt = mdates.DateFormatter('%H:%M')
+    axarr[1].xaxis.set_major_formatter(hfmt)
+    axarr[1].set_ylabel('Pres. (torr)')
+    axarr[1].set_xlabel('Time')
 
-    plot.pylab.subplot(212)
-    plot.pylab.plot(data['T'], data['P'], 'ro')
-    plot.pylab.ylabel('Pres. (torr)')
-    plot.pylab.xlabel('Time')
-
-    #plot.pylab.xaxis.set_major_locator(dates.MinuteLocator())
-    #plot.pylab.xaxis.set_major_formatter(hfmt)
-    plot.pylab.savefig(outfile)
-
+    plt.savefig(outfile)
 
 if __name__ == '__main__':
     with open('LCA-10753_RSA-002_files.txt') as f:

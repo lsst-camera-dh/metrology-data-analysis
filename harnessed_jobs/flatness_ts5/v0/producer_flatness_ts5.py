@@ -12,7 +12,12 @@ acqjobname = siteUtils.getJobName().replace('_Analysis', '')
 if ("Room_Temp_Measurement" in acqjobname and not "After" in acqjobname):
     acqjobname = "Pump_and_" + acqjobname
 
-# siteUtils returns flat_file as a list with one member;
+print('flatness_ts5:')
+print(acqjobname)
+print(siteUtils.getProcessName(acqjobname))
+print('----')
+
+# siteUtils returns a list with one member;
 # here take the first (and only) member
 infile = siteUtils.dependency_glob('*.csv',
                                    jobname=siteUtils.getProcessName(acqjobname),

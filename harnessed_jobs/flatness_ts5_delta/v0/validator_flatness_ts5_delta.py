@@ -12,8 +12,17 @@ results = metUtils.aggregate_filerefs_ts5(producer, testtype)
 
 # Add the QA plot to the results
 raft_id = siteUtils.getUnitId()
-qafile = glob.glob('*%s_qa_plot' % raft_id)
-results.extend([lcatr.schema.fileref.make(qafile)])
+qafile = glob.glob('*%s_qa_plot.png' % raft_id)[0]
+print('qafile:  %s' % qafile)
+print('raft_id:  %s' % raft_id)
+md = siteUtils.DataCatalogMetadata(CCD_MANU=siteUtils.getCcdVendor(),
+                                   LSST_NUM=siteUtils.getUnitId(),
+                                   PRODUCER=producer,
+                                   ORIGIN=siteUtils.getSiteName(),
+                                   TESTTYPE=testtype,
+                                   TEST_CATEGORY='MET')
+
+results.extend([lcatr.schema.fileref.make(qafile,metadata=md(DATA_PRODUCT='QA_PLOT'))])
 
 raftData = md_factory.load('flatness_ts5_delta.pickle')
 peak_valley_95 = raftData.quantiles['0.975'] - raftData.quantiles['0.025']

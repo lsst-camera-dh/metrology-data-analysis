@@ -4,7 +4,9 @@ import os
 os.environ['MPLCONFIGDIR'] = os.curdir
 import matplotlib
 # For batch-processing, use cairo backend to avoid needing an X11 connection.
-# (The Agg backend does not work with 3D plots in matplotlib 1.5.1)
+# (The Agg backend does not work with 3D plots in matplotlib 1.5.1. The cairo
+# backend uses vector fonts and does not render Greek letters or some other
+# LaTeX math formatting.)
 matplotlib.use('cairo')
 
 import sys
@@ -183,7 +185,7 @@ class MetrologyData(object):
             output = open(outfile, 'w')
         sorted_resids = sorted(self.resids)
         npts = len(sorted_resids)
-        output.write('quantile     z (um)\n')
+        output.write('quantile     z (micron)\n')
         for quantile in quantiles:
             index = min(int(npts*quantile), npts-1)
             output.write( ' %.3f   %12.6f\n' % (quantile, sorted_resids[index]))
@@ -204,7 +206,7 @@ class MetrologyData(object):
     def resids_boxplot(self, yrange=None, title=None):
         win = plot.Window()
         plot.pylab.boxplot(self.resids)
-        plot.pylab.ylabel(r'$\mu$m')
+        plot.pylab.ylabel('micron')
         plot.setAxis(yrange=yrange)
         if title is None:
             title = self.infile
@@ -227,7 +229,7 @@ class MetrologyData(object):
         mean, stdev = np.mean(dz[index]), np.std(dz[index])
 
         win = plot.histogram(dz[index],
-                             xname=r'$z - z_{\rm model}$ $(\mu{\rm m})$',
+                             xname=r'z - $z_{\rm model}$ (micron)',
                              yname='entries/bin')
         plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip'
                             % (mean, stdev, nsigma),
@@ -296,6 +298,75 @@ class OgpData(MetrologyData):
         data = [float(x) for x in line.split()[:3]]
         return data[0], data[1], 1e3*data[2]
 
+class Ts5Data(MetrologyData):
+    """
+    Abstraction for raft (RSA and RTM) metrology scans with TS5.
+    """
+    def __init__(self, infile):
+        super(Ts5Data, self).__init__(infile)
+
+    def _read_data(self):
+        # The TS5 metrology data are in csv files.  The first three entries on each
+        # line are commanded x and y and the measured (summed) z, in mm.
+        # Here to allow option of differencing two data sets, infile is
+        # assumed to be a list of 1 or 2 elements
+        data = dict([(key, []) for key in 'XYZ'])
+        
+        # Test to see whether a single string or a list of two files has been
+        # passed for infile
+        if isinstance(self.infile, str):
+            filename = self.infile
+        else:
+            filename = self.infile[0]
+        
+        for line in open(filename):
+            if not line.startswith('#'):
+                tokens = line.split(',')
+                data['X'].append(float(tokens[0]))
+                data['Y'].append(float(tokens[1]))
+                data['Z'].append(float(tokens[2]))
+
+        # If a second file has been provided (for evaluating differential
+        # flatness) read it and subtract the z measurements, keeping
+        # in mind that the grid points included may not be the same
+        # in both files
+        data2 = dict([(key, []) for key in 'XYZ'])
+        if len(self.infile) == 2:
+            for line in open(self.infile[1]):
+                if not line.startswith('#'):
+                    tokens = line.split(',')
+                    data2['X'].append(float(tokens[0]))
+                    data2['Y'].append(float(tokens[1]))
+                    data2['Z'].append(float(tokens[2]))
+
+            # Convert to ndarrays so the where function can be used
+            x = np.array(data['X'])
+            y = np.array(data['Y'])
+            z = np.array(data['Z'])
+            x2 = np.array(data2['X'])
+            y2 = np.array(data2['Y'])
+            z2 = np.array(data2['Z'])
+
+            data3 = dict([(key, []) for key in 'XYZ'])
+            for i in np.arange(len(x)):
+                loc = np.where((x2 == x[i]) & (y2 == y[i]))[0]
+                if len(loc):
+                    data3['X'].append(x[i])
+                    data3['Y'].append(y[i])
+                    data3['Z'].append(z[i] - z2[loc[0]])
+
+            data = data3
+
+        self.sensor = PointCloud(data['X'], data['Y'], data['Z'])
+        # Convert z from mm to micron
+        self.sensor.z *= 1e3
+
+
+    def _xyz(self, line):
+        # Unpack a line and convert z values from mm to microns.
+        data = [float(x) for x in line.split()[:3]]
+        return data[0], data[1], 1e3*data[2]
+
 class ItlData(MetrologyData):
     def __init__(self, infile):
         super(ItlData, self).__init__(infile)
@@ -333,7 +404,7 @@ class E2vData(MetrologyData):
         self.sensor.z *= 1e3
 
 class MetrologyDataFactory(object):
-    _prototypes = dict(OGP=OgpData, ITL=ItlData, e2v=E2vData)
+    _prototypes = dict(OGP=OgpData, ITL=ItlData, e2v=E2vData, TS5=Ts5Data)
 
     def __init__(self):
         pass

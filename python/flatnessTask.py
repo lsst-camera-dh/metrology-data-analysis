@@ -1,4 +1,3 @@
-import numpy as np
 import MetrologyData as metData
 from MetrologyData import md_factory
 
@@ -17,12 +16,12 @@ def flatnessTask(sensor_id, infile, dtype='OGP', pickle_file=None):
     #
     # Make a histogram of residual heights.
     #
-    sensorData.plot_statistics(title='Sensor Flatness, %s' % infile)
+    sensorData.plot_statistics(title='Flatness, %s' % sensor_id)
     metData.plot.save('%s_flatness_hist.png' % sensor_id)
     #
     # Box and whisker plot of residual heights
     #
-    sensorData.resids_boxplot()
+    sensorData.resids_boxplot(title='Residuals Box Plot, %s' % sensor_id)
     metData.plot.save('%s_flatness_boxplot.png' % sensor_id)
     #
     # Quantile table
@@ -34,7 +33,7 @@ def flatnessTask(sensor_id, infile, dtype='OGP', pickle_file=None):
     #
     azims = (10, 45)
     for azim in azims:
-        sensorData.flatness_plot(azim=azim)
+        sensorData.flatness_plot(azim=azim, title='Surface Plot, %s' % sensor_id)
         metData.plot.save('%s_flatness_point_cloud_azim_%i.png'
                           % (sensor_id, azim))
 

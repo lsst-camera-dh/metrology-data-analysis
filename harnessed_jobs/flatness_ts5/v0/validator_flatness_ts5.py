@@ -10,8 +10,8 @@ testtype = 'FLATNESS'
 results = metUtils.aggregate_filerefs_ts5(producer, testtype)
 
 raftData = md_factory.load('flatness_ts5.pickle')
-peak_valley_95 = raftData.quantiles['0.975'] - raftData.quantiles['0.025']
-peak_valley_100 = raftData.quantiles['1.000'] - raftData.quantiles['0.000']
+peak_valley_95 = raftData.quantiles_filt['0.975'] - raftData.quantiles_filt['0.025']
+peak_valley_100 = raftData.quantiles_filt['1.000'] - raftData.quantiles_filt['0.000']
 
 # Make strings out of the quantile information
 quantiles = raftData.quantiles

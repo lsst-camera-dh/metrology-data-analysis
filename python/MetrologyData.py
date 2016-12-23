@@ -86,10 +86,15 @@ class MetrologyData(object):
         self._read_data()
         self.resids = None
 
-    def set_ref_plane(self, plane_functor, zoffset=0):
+    def set_ref_plane(self, plane_functor, zoffset=0, nsigma=4):
         self.plane_functor = plane_functor
         pos, z = self.sensor.data()
-        self.resids = z - plane_functor(pos) + zoffset
+        dz = z - plane_functor(pos) + zoffset
+        self.resids = dz
+        # Also define residuals with outliers removed (nsigma clipping)
+        mean, stdev = np.mean(dz), np.std(dz)
+        index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
+        self.resids_filt = dz[index]
 
     def flatness_plot(self, elev=10, azim=30, title=None,
                       sensor_color='r', ref_color='b'):
@@ -192,6 +197,14 @@ class MetrologyData(object):
             self.quantiles['%.3f' % quantile] = sorted_resids[index]
         if outfile is not None:
             output.close()
+
+        # Also evaluate quantiles with outliers filtered
+        self.quantiles_filt = {}
+        sorted_resids_filt = sorted(self.resids_filt)
+        npts = len(sorted_resids_filt)
+        for quantile in quantiles:
+            index = min(int(npts*quantile), npts-1)
+            self.quantiles_filt['%.3f' % quantile] = sorted_resids[index]
 
     def write_residuals(self, outfile, contour_id=1):
         if self.resids is None:

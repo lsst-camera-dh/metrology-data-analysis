@@ -13,9 +13,9 @@ def absoluteHeightTask(sensor_id, infile, dtype='OGP', zoffset=0,
                                  zoffset=zoffset)
     elif dtype == 'ITL':
         #
-        # Set reference plane at znom=12.998 mm
+        # Set reference plane at znom=12.992 mm
         #
-        sensorData.set_ref_plane(XyzPlane(0, 0, 12998.))
+        sensorData.set_ref_plane(XyzPlane(0, 0, 12992.))
     else:
         raise RuntimeError("%s not supported for absolute height analysis"
                            % dtype)

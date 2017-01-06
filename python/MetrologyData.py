@@ -186,7 +186,7 @@ class MetrologyData(object):
         output.write('quantile     z (um)\n')
         for quantile in quantiles:
             index = min(int(npts*quantile), npts-1)
-            output.write( ' %.3f   %12.6f\n' % (quantile, sorted_resids[index]))
+            output.write(' %.3f   %12.6f\n' % (quantile, sorted_resids[index]))
             self.quantiles['%.3f' % quantile] = sorted_resids[index]
         if outfile is not None:
             output.close()
@@ -213,7 +213,7 @@ class MetrologyData(object):
 
     def plot_statistics(self, nsigma=4, title=None, zoffset=0):
         """
-        Plot summary statistics of z-value residuals relative to the 
+        Plot summary statistics of z-value residuals relative to the
         provided XyzPlane functor.  The sensor data are used if
         plane_data is None.
         """
@@ -329,13 +329,14 @@ class ItlData(MetrologyData):
                 refcount = 0
                 currow += 1
                 zcurrow = 0.
-            elif line.startswith('STANDARD_1 Z') or line.startswith('STANDARD_2 Z') or line.startswith('STANDARD_3 Z') or line.startswith('STANDARD_4 Z'):
+            elif line.startswith('STANDARD_1 Z') or line.startswith('STANDARD_2 Z') \
+                 or line.startswith('STANDARD_3 Z') or line.startswith('STANDARD_4 Z'):
                 tokens = line.split()
                 # Accumulate the z height measurements of the four gauge
                 # blocks
                 zcurrow += float(tokens[3])
                 refcount += 1
-                if (refcount == 4):
+                if refcount == 4:
                     zcurrow = zcurrow/4
                     zarr[currow] = zcurrow
                     if currow == 0:
@@ -343,7 +344,6 @@ class ItlData(MetrologyData):
                         # reference
                         zref = zcurrow
                     refcount == 0
-                    # print '  z drift:  ' + repr(zcurrow - zref) + ' currow:  ' + repr(currow)
             elif line.startswith('ImagePoint'):
                 tokens = line.split()
                 if len(tokens) > 5:
@@ -357,14 +357,6 @@ class ItlData(MetrologyData):
         self.sensor = PointCloud(data['X'], data['Y'], data['Z'])
         # Convert z from mm to micron
         self.sensor.z *= 1e3
-
-        zdrift = (zarr - zref)*1000
-        matplotlib.pyplot.plot(np.arange(0,40,1),zdrift)
-        matplotlib.pyplot.xlabel('Scan Row')
-        matplotlib.pyplot.ylabel('Z drift (microns)')
-        matplotlib.pyplot.title('Trend of Reference Block Z Heights, ITL-3800C-035 Vendor Data')
-        matplotlib.pyplot.show()
-        print 'Plot shown'
 
 class E2vData(MetrologyData):
     def __init__(self, infile):
@@ -399,27 +391,3 @@ class MetrologyDataFactory(object):
         return pickle.load(open(pickle_file))
 
 md_factory = MetrologyDataFactory()
-
-if __name__ == '__main__':
-    #a = ItlData("/nfs/farm/g/lsst/u1/vendorData/ITL/ITL-3800C-068/Prod/6418/data/LSST/sn20862/ID068_SN20862_metrology/ID068_SN20862_Z_Inspect_LSST_STA3800_Z_Inspect_R4.0;sn20862.txt")
-    a = ItlData("/nfs/farm/g/lsst/u1/jobHarness/jh_archive/ITL-CCD/ITL-3800C-035/vendorIngest/v0/1868/ID035_SN20190_Z_Inspect_LSST_STA3800_Z_Inspect_R4.0;sn20190.txt")
-
-    # Go through all of the available ITL vendor metrology data sets
-    #from DataCatalog import DataCatalog
-    #folder = '/LSST/mirror/SLAC-prod/prod/ITL-CCD/'
-    #query = 'DATA_PRODUCT == "MET_SCAN"'
-    #datacat = DataCatalog(folder=folder,site='SLAC')
-    #datasets = datacat.find_datasets(query)
-    #temp = datasets.full_paths()
-    # Hack, remove a duplicate ingest for -068
-    #temp2 = temp[:18]
-    #for i in range(13):
-        #temp2.append(temp[19+i])
-    #temp2.append(temp[19:])
-    #for item in temp[:18]:
-        #ItlData(item)
-    #for item in temp[20:25]:
-        #ItlData(item)
-
-    #b = ItlData("/nfs/farm/g/lsst/u1/vendorData/ITL/ITL-3800C-072/Prod/6221/data/LSST/sn20971/ID072_SN20971_metrology/ID072_SN20971_Z_Inspect_LSST_STA3800_Z_Inspect_R4.0;sn20971.txt")
-    

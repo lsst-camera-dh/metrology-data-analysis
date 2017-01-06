@@ -41,6 +41,8 @@ class PointCloud(object):
         self.x = np.array(x)
         self.y = np.array(y)
         self.z = np.array(z)
+        self.stdev_filt = None
+        self.mean_filt = None
 
     def data(self):
         """
@@ -56,7 +58,7 @@ class PointCloud(object):
         result.z = np.concatenate((self.z, other.z))
         return result
 
-    def xyzPlane_fit(self, nsigma=3, p0=(0, 0, 0)):
+    def xyzPlane_fit(self, nsigma=4, p0=(0, 0, 0)):
         """
         Fit a plane to the xyz data, clipping the initial fit at the
         nsigma level to remove outlier points.  Return an XyzPlane
@@ -69,10 +71,26 @@ class PointCloud(object):
         dz = xyz_plane(positions, *pars) - self.z
         mean, stdev = np.mean(dz), np.std(dz)
 
-        # Refit the reference data within nsigma*stdev of the mean.
+        # Refit iteratively until the standard deviation of residuals does not
+        # change
+        stdev_last = -1
+        stdev_new = stdev
         index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
-        pars, _ = scipy.optimize.curve_fit(xyz_plane, positions[index],
-                                           self.z[index], p0=pars)
+        while stdev_new <> stdev_last:
+            stdev_last = stdev_new
+            # Refit the reference data within nsigma*stdev of the mean.
+            pars, _ = scipy.optimize.curve_fit(xyz_plane, positions[index],
+                                               self.z[index], p0=pars)
+            dz = xyz_plane(positions, *pars) - self.z
+            mean, stdev_new = np.mean(dz[index]), np.std(dz[index])
+            index = np.where((dz > mean-nsigma*stdev_new) &
+                             (dz < mean+nsigma*stdev_new))
+
+        # Make the standard deviation and mean of the filtered residuals
+        # available, along with the fit parameters
+        self.stdev_filt = stdev_new
+        self.mean_filt = mean
+        self.pars = pars
 
         # Return a XyzPlane functor initialized with the fitted parameters.
         return XyzPlane(*pars)
@@ -85,14 +103,16 @@ class MetrologyData(object):
         self.infile = infile
         self._read_data()
         self.resids = None
+        self.resids_filt = None
+        self.pars = None
 
-    def set_ref_plane(self, plane_functor, zoffset=0, nsigma=4):
+    def set_ref_plane(self, plane_functor, zoffset=0, nsigma=5):
         self.plane_functor = plane_functor
         pos, z = self.sensor.data()
         dz = z - plane_functor(pos) + zoffset
         self.resids = dz
         # Also define residuals with outliers removed (nsigma clipping)
-        mean, stdev = np.mean(dz), np.std(dz)
+        mean, stdev = self.sensor.mean_filt, self.sensor.stdev_filt
         index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
         self.resids_filt = dz[index]
 
@@ -193,7 +213,7 @@ class MetrologyData(object):
         output.write('quantile     z (micron)\n')
         for quantile in quantiles:
             index = min(int(npts*quantile), npts-1)
-            output.write( ' %.3f   %12.6f\n' % (quantile, sorted_resids[index]))
+            output.write(' %.3f   %12.6f\n' % (quantile, sorted_resids[index]))
             self.quantiles['%.3f' % quantile] = sorted_resids[index]
         if outfile is not None:
             output.close()
@@ -204,7 +224,7 @@ class MetrologyData(object):
         npts = len(sorted_resids_filt)
         for quantile in quantiles:
             index = min(int(npts*quantile), npts-1)
-            self.quantiles_filt['%.3f' % quantile] = sorted_resids[index]
+            self.quantiles_filt['%.3f' % quantile] = sorted_resids_filt[index]
 
     def write_residuals(self, outfile, contour_id=1):
         if self.resids is None:
@@ -226,27 +246,34 @@ class MetrologyData(object):
         win.set_title(title)
         return win
 
-    def plot_statistics(self, nsigma=4, title=None, zoffset=0):
+    def plot_statistics(self, nsigma=5, title=None, zoffset=0):
         """
-        Plot summary statistics of z-value residuals relative to the 
+        Plot summary statistics of z-value residuals relative to the
         provided XyzPlane functor.  The sensor data are used if
         plane_data is None.
         """
         if self.resids is None:
             raise RuntimeError("Reference plane not set")
-        dz = self.resids
-        mean, stdev = np.mean(dz), np.std(dz)
+        dz = self.resids_filt
 
-        # Trim outliers at nsigma and recompute mean and stdev.
-        index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
-        mean, stdev = np.mean(dz[index]), np.std(dz[index])
-
-        win = plot.histogram(dz[index],
+        lim = np.round(self.sensor.stdev_filt)
+        xrange = [-5*lim, 5*lim]
+        win = plot.histogram(dz,
                              xname=r'z - $z_{\rm model}$ (micron)',
-                             yname='entries/bin')
+                             yname='entries/bin',
+                             bins=60,
+                             xrange=xrange)
         plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip'
-                            % (mean, stdev, nsigma),
-                            (0.05, 0.8), xycoords='axes fraction')
+                            % (self.sensor.mean_filt, self.sensor.stdev_filt,
+                               nsigma), (0.05, 0.8), xycoords='axes fraction')
+
+        # Overlay a Gaussian with the same sigma and correct normalization
+        x = np.arange(np.min(dz), np.max(dz), 0.1)
+        binsz = 10*lim/60
+        y = np.exp(-0.5*np.square(x/self.sensor.stdev_filt))
+        y = y/np.sum(y)*np.size(dz)*binsz/0.1
+        plot.pylab.plot(x, y, color='b', linestyle='-')
+
         if title is None:
             title = self.infile
         win.set_title(title)
@@ -324,14 +351,13 @@ class Ts5Data(MetrologyData):
         # Here to allow option of differencing two data sets, infile is
         # assumed to be a list of 1 or 2 elements
         data = dict([(key, []) for key in 'XYZ'])
-        
         # Test to see whether a single string or a list of two files has been
         # passed for infile
         if isinstance(self.infile, str):
             filename = self.infile
         else:
             filename = self.infile[0]
-        
+ 
         for line in open(filename):
             if not line.startswith('#'):
                 tokens = line.split(',')

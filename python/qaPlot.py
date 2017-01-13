@@ -45,7 +45,7 @@ def qaPlot(infiles, outfile, title=None):
     axarr[0].plot(times, data['B'], 'go', label='B')
     axarr[0].plot(times, data['C'], 'bo', label='C')
     axarr[0].plot(times, data['D'], 'ko', label='D')
-    axarr[0].set_ylabel('Temp. (C)')
+    axarr[0].set_ylabel('Temperature (C)')
     if title is None:
         title = 'QA Plot'
     axarr[0].set_title(title)
@@ -53,7 +53,7 @@ def qaPlot(infiles, outfile, title=None):
     axarr[1].plot(times, data['P'], 'ro')
     hfmt = mdates.DateFormatter('%H:%M')
     axarr[1].xaxis.set_major_formatter(hfmt)
-    axarr[1].set_ylabel('Pres. (micro-torr)')
+    axarr[1].set_ylabel('Pressure (micro-torr)')
     axarr[1].set_xlabel('Time')
 
     plt.savefig(outfile)

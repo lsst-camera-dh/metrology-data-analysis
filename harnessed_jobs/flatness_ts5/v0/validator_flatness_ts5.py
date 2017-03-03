@@ -56,7 +56,7 @@ results.append(lcatr.schema.valid(lcatr.schema.get('ts5_raft_flatness2'),
                                   temp_C_end = temp_end[2],
                                   temp_D_end = temp_end[3]))
 
-results.append(siteUtils.packageVersions())
+results.extend(siteUtils.packageVersions())
 
 lcatr.schema.write_file(results)
 lcatr.schema.validate_file()

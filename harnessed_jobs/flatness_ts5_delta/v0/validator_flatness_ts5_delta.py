@@ -48,7 +48,7 @@ results.append(lcatr.schema.valid(lcatr.schema.get('ts5_flatness_delta'),
                                   flatness_quantile=quantile_str,
                                   flatness_z=z_str))
 
-results.append(siteUtils.packageVersions())
+results.extend(siteUtils.packageVersions())
 
 lcatr.schema.write_file(results)
 lcatr.schema.validate_file()

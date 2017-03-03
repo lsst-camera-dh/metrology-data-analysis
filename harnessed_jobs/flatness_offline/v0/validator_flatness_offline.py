@@ -13,7 +13,7 @@ peak_valley_95 = sensorData.quantiles['0.975'] - sensorData.quantiles['0.025']
 results.append(lcatr.schema.valid(lcatr.schema.get('sensor_flatness'),
                                   peak_valley_95=peak_valley_95))
 
-results.append(siteUtils.packageVersions())
+results.extend(siteUtils.packageVersions())
 
 lcatr.schema.write_file(results)
 lcatr.schema.validate_file()

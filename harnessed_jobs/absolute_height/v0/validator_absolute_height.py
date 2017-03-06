@@ -26,7 +26,7 @@ if os.path.isfile(pickle_file):
                                       z_quantile_0025=z_quantile_0025,
                                       z_quantile_0975=z_quantile_0975))
 
-results.append(siteUtils.packageVersions())
+results.extend(siteUtils.packageVersions())
 
 lcatr.schema.write_file(results)
 lcatr.schema.validate_file()

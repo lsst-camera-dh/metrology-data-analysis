@@ -76,7 +76,7 @@ class PointCloud(object):
         stdev_last = -1
         stdev_new = stdev
         index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
-        while stdev_new <> stdev_last:
+        while stdev_new != stdev_last:
             stdev_last = stdev_new
             # Refit the reference data within nsigma*stdev of the mean.
             pars, _ = scipy.optimize.curve_fit(xyz_plane, positions[index],

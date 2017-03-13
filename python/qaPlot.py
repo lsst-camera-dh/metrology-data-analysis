@@ -33,7 +33,8 @@ def qaPlot(infiles, outfile, title=None):
                 data['B'].append(float(tokens[10]))
                 data['C'].append(float(tokens[11]))
                 data['D'].append(float(tokens[12]))
-                data['P'].append(float(tokens[13]))
+                # Multiply the pressure by 1E6 to convert it to micro-torr
+                data['P'].append(float(tokens[13])*1E6)
                 # Divide the time stamp by 1000 to convert it to seconds
                 data['T'].append(float(tokens[14])/1000.)
 
@@ -44,7 +45,7 @@ def qaPlot(infiles, outfile, title=None):
     axarr[0].plot(times, data['B'], 'go', label='B')
     axarr[0].plot(times, data['C'], 'bo', label='C')
     axarr[0].plot(times, data['D'], 'ko', label='D')
-    axarr[0].set_ylabel('Temp. (C)')
+    axarr[0].set_ylabel('Temperature (C)')
     if title is None:
         title = 'QA Plot'
     axarr[0].set_title(title)
@@ -52,7 +53,7 @@ def qaPlot(infiles, outfile, title=None):
     axarr[1].plot(times, data['P'], 'ro')
     hfmt = mdates.DateFormatter('%H:%M')
     axarr[1].xaxis.set_major_formatter(hfmt)
-    axarr[1].set_ylabel('Pres. (torr)')
+    axarr[1].set_ylabel('Pressure (micro-torr)')
     axarr[1].set_xlabel('Time')
 
     plt.savefig(outfile)

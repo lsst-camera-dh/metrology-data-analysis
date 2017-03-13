@@ -1,5 +1,4 @@
 import os
-
 # The following is needed so that matplotlib can write to .matplotlib
 os.environ['MPLCONFIGDIR'] = os.curdir
 import matplotlib
@@ -43,6 +42,7 @@ class PointCloud(object):
         self.z = np.array(z)
         self.stdev_filt = None
         self.mean_filt = None
+        #self.resids_model = None
 
     def data(self):
         """
@@ -76,7 +76,7 @@ class PointCloud(object):
         stdev_last = -1
         stdev_new = stdev
         index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
-        while stdev_new <> stdev_last:
+        while stdev_new != stdev_last:
             stdev_last = stdev_new
             # Refit the reference data within nsigma*stdev of the mean.
             pars, _ = scipy.optimize.curve_fit(xyz_plane, positions[index],
@@ -92,6 +92,73 @@ class PointCloud(object):
         self.mean_filt = mean
         self.pars = pars
 
+        print(pars)
+        # For this set of 'good' points, model the expected distribution of
+        # residuals based on fitting planes to the individual CCD surfaces.
+        # This involves stepping through the CCDs (S00 -> S22), selecting the
+        # data points 'owned' by a given sensor, fitting a plane to them,
+        # and evaluating the plane at each of the data points owned by the CCD.
+        # An array with the model residuals with respect to the overall
+        # best-fitting plane is accumulated
+        x = self.x
+        y = self.y
+        # Construct an 'ideal' list of x, y grid points spanning the sensor, so that
+        # positions excluded from the fits as outliers are not excluded from the
+        # evaluation of the fitted sensor surface height
+        x1 = np.arange(np.min(x), np.max(x)+4, 4)
+        y1 = np.arange(np.min(y), np.max(y)+4, 4)
+        xmodel = []
+        ymodel = []
+        for xi in x1:
+            for yi in y1:
+                xmodel.append(xi)
+                ymodel.append(yi)
+
+        xmodel = np.asarray(xmodel)
+        ymodel = np.asarray(ymodel)
+
+        for ccd in range(0, 9):
+            xmin = 123 + 40*(ccd / 3)
+            xmax = xmin + 40
+            ymin = 27 + 40*np.mod(ccd, 3)
+            ymax = ymin + 40
+            print(xmin,xmax,ymin,ymax)
+            #include = np.where((x[index] >= xmin) & (x[index] < xmax) &
+            #                   (y[index] >= ymin) & (y[index] < ymax))
+            include = np.where((x >= xmin) & (x < xmax) &
+                               (y >= ymin) & (y < ymax) &
+                               (dz > mean-nsigma*stdev_new) &
+                               (dz < mean+nsigma*stdev_new))
+            pars_temp, _ = scipy.optimize.curve_fit(xyz_plane, positions[include],
+                                               self.z[include], p0=pars)
+            print(ccd, pars_temp)
+            # Evaluate difference between the plane fit and the overall fit
+            pars_diff = pars_temp - pars
+            print(ccd, pars_diff)
+            #dzmodel.append(x[include]*pars_diff[0] + y[include]*pars_diff[1] +
+                          #pars_diff[2])
+            #if ccd == 0:
+                #dzmodel = np.array(x[include]*pars_diff[0] + y[include]*pars_diff[1] +
+                #          pars_diff[2])
+            #else:
+                #dzmodel = np.append(dzmodel, x[include]*pars_diff[0] + y[include]*pars_diff[1] +
+                #          pars_diff[2])
+            # Construct an 'ideal' list of x, y grid points spanning the sensor, so that
+            # positions excluded from the fits as outliers are not excluded from the
+            # evaluation of the fitted sensor surface height
+            include = np.where((xmodel >= xmin) & (xmodel < xmax) &
+                               (ymodel >= ymin) & (ymodel < ymax) )
+
+            if ccd == 0:
+                dzmodel = np.array(xmodel[include]*pars_diff[0] + ymodel[include]*pars_diff[1] +
+                          pars_diff[2])
+            else:
+                dzmodel = np.append(dzmodel, xmodel[include]*pars_diff[0] + ymodel[include]*pars_diff[1] +
+                          pars_diff[2])
+
+        import pickle
+        pickle.dump( dzmodel, open("dzmodel.pickle", "wb") )
+
         # Return a XyzPlane functor initialized with the fitted parameters.
         return XyzPlane(*pars)
 
@@ -104,6 +171,7 @@ class MetrologyData(object):
         self._read_data()
         self.resids = None
         self.resids_filt = None
+        self.resids_model = None
         self.pars = None
 
     def set_ref_plane(self, plane_functor, zoffset=0, nsigma=5):
@@ -139,9 +207,9 @@ class MetrologyData(object):
 
         ax.plot_wireframe(xx, yy, zz, rstride=5, cstride=5)
 
-        index = np.where(self.resids > 0)
+        index = np.where(self.resids_filt > 0)
         ax.scatter(self.sensor.x[index], self.sensor.y[index],
-                   self.resids[index], c=sensor_color)
+                   self.resids_filt[index], c=sensor_color)
 
         plot.pylab.xlabel('x (mm)')
         plot.pylab.ylabel('y (mm)')
@@ -274,6 +342,29 @@ class MetrologyData(object):
         y = y/np.sum(y)*np.size(dz)*binsz/0.1
         plot.pylab.plot(x, y, color='b', linestyle='-')
 
+        # Overlay the model residuals
+        #plot.pylab.hist(self.resids_model, bins=60, range=xrange, color='r',
+                             #linestyle='-')
+        resids_model = pickle.load( open( "dzmodel.pickle", "rb") )
+        #print(resids_model)
+        print('relative sizes:')
+        print(dz.size, resids_model.size)
+        hist, bin_edges = np.histogram(resids_model, range=(-5*lim, 5*lim), bins=60)
+        #print(hist)
+        # Smooth the histogram by an approximate resolution function
+        filter = np.exp(-(bin_edges[1:]*bin_edges[1:])/2./(3.*3.))
+        filter = filter/np.sum(filter)
+        hist2 = np.convolve(hist, filter, mode='same')
+        print(xrange)
+        print(bin_edges)
+        print(hist2)
+        print(bin_edges.size, hist.size, hist2.size)
+        print(bin_edges.shape, hist.shape, hist2.shape)
+        #print(resids_model)
+        plot.pylab.plot(bin_edges[1:], hist2, color='r', linestyle='-')
+
+        plot.pylab.plot(bin_edges[1:], hist, color='g', linestyle='-')
+
         if title is None:
             title = self.infile
         win.set_title(title)
@@ -338,6 +429,69 @@ class OgpData(MetrologyData):
         data = [float(x) for x in line.split()[:3]]
         return data[0], data[1], 1e3*data[2]
 
+class OgpRsaData(MetrologyData):
+    """
+    Abstraction for an RSA metrology scan using the OGP machine at BNL.
+    """
+    def __init__(self, infile):
+        super(OgpRsaData, self).__init__(infile)
+
+    def _read_data(self):
+        # Read the "Contour" data blocks into a local dict, convert
+        # each to a PointCloud object, sort by mean y-value, and
+        # finally, set the sensor and reference datasets.
+        data = dict()
+        key = None
+        for line in open(self.infile):
+            if line.startswith('Contour'):
+                # take the number after 'Contour' as the index key
+                key = line.strip().split()[1]
+                data[key] = []
+            if line.strip() and key is not None:
+                try:
+                    coords = self._xyz(line)
+                    data[key].append(coords)
+                except ValueError:
+                    pass
+            else:
+                key = None
+        # Convert to PointCloud objects.
+        for key in data:
+            data[key] = PointCloud(*zip(*tuple(data[key])))
+
+        # Identify RSA surface and ball scans by mean z values
+        # and x, y ranges
+        zavgs = sorted([np.mean(cloud.z) for cloud in data.values()])
+        ref_clouds1 = []
+        ref_clouds2 = []
+        ref_clouds3 = []
+
+        for cloud in data.values():
+            if np.mean(cloud.y) >= 0. and np.mean(cloud.y) <= 42.:
+                self.sensor = cloud
+            else:
+                # Figure out which ball it belongs to
+                if (np.mean(cloud.x) > 220  and np.mean(cloud.x) < 320
+                    and np.mean(cloud.y) > 160 and np.mean(cloud.y) < 190):
+                    ref_clouds1.append(cloud)
+                if (np.mean(cloud.x) > 220  and np.mean(cloud.x) < 320
+                    and np.mean(cloud.y) > 240 and np.mean(cloud.y) < 280):
+                    ref_clouds2.append(cloud)
+                if (np.mean(cloud.x) > 110  and np.mean(cloud.x) < 140
+                    and np.mean(cloud.y) > 200 and np.mean(cloud.y) < 240):
+                    ref_clouds3.append(cloud)
+
+        #if len(yavgs) > 1:
+            # Add all the reference point clouds together, explicitly
+            # setting the 'start' value in the sum function.
+        #    self.reference = sum(ref_clouds[1:], ref_clouds[0])
+        print(size(ref_clouds1))
+
+    def _xyz(self, line):
+        # Unpack a line and convert z values from mm to microns.
+        data = [float(x) for x in line.split()[:3]]
+        return data[0], data[1], 1e3*data[2]
+
 class Ts5Data(MetrologyData):
     """
     Abstraction for raft (RSA and RTM) metrology scans with TS5.
@@ -358,12 +512,28 @@ class Ts5Data(MetrologyData):
         else:
             filename = self.infile[0]
  
+        lastx = -999
+        toggle = 1
         for line in open(filename):
+            # read the 1st, 3rd, etc. scan lines
             if not line.startswith('#'):
                 tokens = line.split(',')
-                data['X'].append(float(tokens[0]))
-                data['Y'].append(float(tokens[1]))
-                data['Z'].append(float(tokens[2]))
+                if float(tokens[0]) <> lastx:
+                    lastx = float(tokens[0])
+                    toggle = 1 - toggle
+
+                toggle = 0  # read every line
+                if toggle == 0:
+                    data['X'].append(float(tokens[0]))
+                    data['Y'].append(float(tokens[1]))
+                    data['Z'].append(float(tokens[2]))
+
+#        for line in open(filename):
+#            if not line.startswith('#'):
+#                tokens = line.split(',')
+#                data['X'].append(float(tokens[0]))
+#                data['Y'].append(float(tokens[1]))
+#                data['Z'].append(float(tokens[2]))
 
         # If a second file has been provided (for evaluating differential
         # flatness) read it and subtract the z measurements, keeping
@@ -399,7 +569,6 @@ class Ts5Data(MetrologyData):
         self.sensor = PointCloud(data['X'], data['Y'], data['Z'])
         # Convert z from mm to micron
         self.sensor.z *= 1e3
-
 
     def _xyz(self, line):
         # Unpack a line and convert z values from mm to microns.
@@ -443,7 +612,8 @@ class E2vData(MetrologyData):
         self.sensor.z *= 1e3
 
 class MetrologyDataFactory(object):
-    _prototypes = dict(OGP=OgpData, ITL=ItlData, e2v=E2vData, TS5=Ts5Data)
+    _prototypes = dict(OGP=OgpData, OGPRSA = OgpRsaData, ITL=ItlData,
+                       e2v=E2vData, TS5=Ts5Data)
 
     def __init__(self):
         pass

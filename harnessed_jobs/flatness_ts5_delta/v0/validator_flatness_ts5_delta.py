@@ -26,8 +26,8 @@ md = siteUtils.DataCatalogMetadata(CCD_MANU=siteUtils.getCcdVendor(),
 results.extend([lcatr.schema.fileref.make(qafile, metadata=md(DATA_PRODUCT='QA_PLOT'))])
 
 raftData = md_factory.load('flatness_ts5_delta.pickle')
-peak_valley_95 = raftData.quantiles['0.975'] - raftData.quantiles['0.025']
-peak_valley_100 = raftData.quantiles['1.000'] - raftData.quantiles['0.000']
+peak_valley_95 = raftData.quantiles_filt['0.975'] - raftData.quantiles_filt['0.025']
+peak_valley_100 = raftData.quantiles_filt['1.000'] - raftData.quantiles_filt['0.000']
 
 # Make strings out of the quantile information
 quantiles = raftData.quantiles

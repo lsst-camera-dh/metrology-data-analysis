@@ -13,6 +13,7 @@ import sys
 import pickle
 import numpy as np
 import scipy.optimize
+import scipy.stats
 from mpl_toolkits.mplot3d import Axes3D
 import lsst.eotest.sensor.pylab_plotter as plot
 
@@ -246,7 +247,7 @@ class MetrologyData(object):
         win.set_title(title)
         return win
 
-    def plot_statistics(self, nsigma=5, title=None, zoffset=0):
+    def plot_statistics(self, nsigma=5, title=None, zoffset=0, bins=60):
         """
         Plot summary statistics of z-value residuals relative to the
         provided XyzPlane functor.  The sensor data are used if
@@ -268,11 +269,12 @@ class MetrologyData(object):
                                nsigma), (0.05, 0.8), xycoords='axes fraction')
 
         # Overlay a Gaussian with the same sigma and correct normalization
-        x = np.arange(np.min(dz), np.max(dz), 0.1)
-        binsz = 10*lim/60
-        y = np.exp(-0.5*np.square(x/self.sensor.stdev_filt))
-        y = y/np.sum(y)*np.size(dz)*binsz/0.1
-        plot.pylab.plot(x, y, color='b', linestyle='-')
+        binsz = np.abs(xrange[1] - xrange[0])/float(bins)
+        x = np.linspace(np.min(dz), np.max(dz), 100)
+        gaussian = scipy.stats.norm(loc=self.sensor.mean_filt,
+                                    scale=self.sensor.stdev_filt)
+        plot.pylab.plot(x, np.size(dz)*binsz*gaussian.pdf(x), color='b',
+                        linestyle='-')
 
         if title is None:
             title = self.infile

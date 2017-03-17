@@ -257,12 +257,11 @@ class MetrologyData(object):
             raise RuntimeError("Reference plane not set")
         dz = self.resids_filt
 
-        lim = np.round(self.sensor.stdev_filt)
-        xrange = [-5*lim, 5*lim]
+        xrange = [-5*self.sensor.stdev_filt, 5*self.sensor.stdev_filt]
         win = plot.histogram(dz,
                              xname=r'z - $z_{\rm model}$ (micron)',
                              yname='entries/bin',
-                             bins=60,
+                             bins=bins,
                              xrange=xrange)
         plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip'
                             % (self.sensor.mean_filt, self.sensor.stdev_filt,

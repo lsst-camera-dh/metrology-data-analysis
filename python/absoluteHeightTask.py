@@ -50,10 +50,3 @@ def absoluteHeightTask(sensor_id, infile, dtype='OGP', zoffset=0,
 
     if pickle_file is not None:
         sensorData.persist(pickle_file)
-
-if __name__ == '__main__':
-
-    infile = '/nfs/farm/g/lsst/u1/jobHarness/jh_archive/ITL-CCD/ITL-3800C-095/3333/vendorIngest/v0/13157/ID095_SN20915_Z_Inspect_LSSTZ_sn20915.txt'
-    sensor_id = 'ITL-3800C-095'
-    absoluteHeightTask(sensor_id, infile, dtype='ITL', zoffset=0,
-                       pickle_file=None)

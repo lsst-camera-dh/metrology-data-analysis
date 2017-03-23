@@ -71,7 +71,6 @@ class PointCloud(object):
         pars, _ = scipy.optimize.curve_fit(xyz_plane, positions, self.z, p0=p0)
         dz = xyz_plane(positions, *pars) - self.z
         mean, stdev = np.mean(dz), np.std(dz)
-        print('mean, stdev, nsigma:  ',mean, stdev, nsigma)
         # Refit iteratively until the standard deviation of residuals does not
         # change
         stdev_last = -1
@@ -84,7 +83,6 @@ class PointCloud(object):
                                                self.z[index], p0=pars)
             dz = xyz_plane(positions, *pars) - self.z
             mean, stdev_new = np.mean(dz[index]), np.std(dz[index])
-            print('mean, stdev, nsigma:  ',mean, stdev, nsigma)
             index = np.where((dz > mean-nsigma*stdev_new) &
                              (dz < mean+nsigma*stdev_new))
 

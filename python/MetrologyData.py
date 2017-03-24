@@ -113,7 +113,7 @@ class MetrologyData(object):
         self.resids = dz
 
         # Also define residuals with outliers removed (nsigma clipping)
-        if self.sensor.mean_filt == None:
+        if self.sensor.mean_filt is None:
             # For absolute height analysis for ITL sensors no plane will
             # have been fit at this point, so the mean and standard 
             # deviations of residuals with outliers filtered will not 

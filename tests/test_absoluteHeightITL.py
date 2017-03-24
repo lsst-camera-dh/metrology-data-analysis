@@ -3,8 +3,8 @@ Executes an absolute height analysis for an ITL vendor data set, exercising
 code in set_ref_plane that formerly crashed on this data
 """
 from __future__ import print_function
+import os
 import unittest
-#import numpy as np
 from MetrologyData import md_factory, XyzPlane
 
 class ReferencePlaneITLTestCase(unittest.TestCase):
@@ -21,7 +21,8 @@ class ReferencePlaneITLTestCase(unittest.TestCase):
         sensors by generating a quantile table and comparing it
         with earlier results
         """
-        infile = 'ITL_vendor_metrology_data.txt'
+        infile = os.path.join(os.environ['METROLOGYDATAANALYSISDIR'], 'tests',
+                                         'ITL_vendor_metrology_data.txt')
         dtype = 'ITL'
 
         sensorData = md_factory.create(infile, dtype=dtype)

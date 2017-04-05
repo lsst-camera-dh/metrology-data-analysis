@@ -270,8 +270,8 @@ class MetrologyData(object):
             raise RuntimeError("Reference plane not set")
         dz = self.resids_filt
         # Define the axis range relative to the mean of the residuals
-        xrange = [np.mean(self.resids_filt) - 5*self.sensor.stdev_filt,
-                  np.mean(self.resids_filt) + 5*self.sensor.stdev_filt]
+        xrange = [self.sensor.mean_filt - 5*self.sensor.stdev_filt,
+                  self.sensor.mean_filt + 5*self.sensor.stdev_filt]
         win = plot.histogram(dz,
                              xname=r'z - $z_{\rm model}$ (micron)',
                              yname='entries/bin',

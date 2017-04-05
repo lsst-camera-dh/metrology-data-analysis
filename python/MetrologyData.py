@@ -71,7 +71,6 @@ class PointCloud(object):
         pars, _ = scipy.optimize.curve_fit(xyz_plane, positions, self.z, p0=p0)
         dz = xyz_plane(positions, *pars) - self.z
         mean, stdev = np.mean(dz), np.std(dz)
-
         # Refit iteratively until the standard deviation of residuals does not
         # change
         stdev_last = -1
@@ -112,7 +111,21 @@ class MetrologyData(object):
         pos, z = self.sensor.data()
         dz = z - plane_functor(pos) + zoffset
         self.resids = dz
+
         # Also define residuals with outliers removed (nsigma clipping)
+        if self.sensor.mean_filt is None:
+            # For absolute height analysis for ITL sensors no plane will
+            # have been fit at this point, so the mean and standard 
+            # deviations of residuals with outliers filtered will not 
+            # have been evaluated.  No plane needs to be fit here, but
+            # the code expects to be able to reference the mean and
+            # standard deviations of the filtered residuals.
+            mean, stdev = np.mean(dz), np.std(dz)
+            index = np.where((dz > mean-nsigma*stdev) &
+                             (dz < mean+nsigma*stdev))
+            self.sensor.mean_filt = np.mean(dz[index])
+            self.sensor.stdev_filt = np.std(dz[index])
+
         mean, stdev = self.sensor.mean_filt, self.sensor.stdev_filt
         index = np.where((dz > mean-nsigma*stdev) & (dz < mean+nsigma*stdev))
         self.resids_filt = dz[index]

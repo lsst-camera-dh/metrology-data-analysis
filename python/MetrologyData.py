@@ -270,24 +270,24 @@ class MetrologyData(object):
             raise RuntimeError("Reference plane not set")
         dz = self.resids_filt
 
-        xrange = [-5*self.sensor.stdev_filt, 5*self.sensor.stdev_filt]
         win = plot.histogram(dz,
                              xname=r'z - $z_{\rm model}$ (micron)',
                              yname='entries/bin',
-                             bins=bins,
-                             xrange=xrange)
+                             bins=bins) 
+        # Retrieve the plot limits to derive the width of the histogram bins
+        limits = plot.pylab.axis()
+        binsz = (limits[1] - limits[0])/bins
+
         plot.pylab.annotate('mean=%.3f\nstdev=%.3f\n%i-sigma clip'
                             % (self.sensor.mean_filt, self.sensor.stdev_filt,
                                nsigma), (0.05, 0.8), xycoords='axes fraction')
 
         # Overlay a Gaussian with the same sigma and correct normalization
-        binsz = np.abs(xrange[1] - xrange[0])/float(bins)
         x = np.linspace(np.min(dz), np.max(dz), 100)
         gaussian = scipy.stats.norm(loc=self.sensor.mean_filt,
                                     scale=self.sensor.stdev_filt)
         plot.pylab.plot(x, np.size(dz)*binsz*gaussian.pdf(x), color='b',
                         linestyle='-')
-
         if title is None:
             title = self.infile
         win.set_title(title)

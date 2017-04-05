@@ -34,10 +34,9 @@ class ReferencePlaneWFSTestCase(unittest.TestCase):
         #
         sensorData.set_ref_plane(XyzPlane(0, 0, 12992.))
 
-        # Make a histogram of residual heights.
+        # Make a histogram of residual heights.  (Do not save the plot output.)
         #
         sensorData.plot_statistics(title='Sensor Absolute Height, %s' % infile)
-        metData.plot.save('%s_abs_height_hist.png' % sensor_id)
 
 if __name__ == '__main__':
     unittest.main()

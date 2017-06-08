@@ -10,8 +10,11 @@ results = metUtils.aggregate_filerefs(producer, testtype)
 
 sensorData = md_factory.load('flatness.pickle')
 peak_valley_95 = sensorData.quantiles['0.975'] - sensorData.quantiles['0.025']
+flatnesshalfband_95 = peak_valley_95/2.
+
 results.append(lcatr.schema.valid(lcatr.schema.get('sensor_flatness'),
                                   peak_valley_95=peak_valley_95))
+                                  flatnesshalfband_95=flatnesshalfband_95))
 
 results.extend(siteUtils.packageVersions())
 

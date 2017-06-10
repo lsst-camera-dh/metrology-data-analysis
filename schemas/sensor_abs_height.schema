@@ -1,0 +1,10 @@
+# -*- python -*-
+{
+    'schema_name' : 'sensor_abs_height',
+    'schema_version' : 0,
+    'z_median_m_13' : float,
+    'z_quantile_0975' : float,
+    'z_quantile_0025' : float,
+    'frac_low' : float,
+    'flatnesshalfband_95' : float}
+}

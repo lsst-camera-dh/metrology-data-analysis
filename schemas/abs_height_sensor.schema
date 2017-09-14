@@ -1,6 +1,6 @@
 # -*- python -*-
 {
-    'schema_name' : 'sensor_abs_height',
+    'schema_name' : 'abs_height_sensor',
     'schema_version' : 0,
     'z_median_m_13' : float,
     'z_quantile_0975' : float,

@@ -1,6 +1,6 @@
 # -*- python -*-
 {
-    'schema_name' : 'sensor_flatness',
+    'schema_name' : 'flatness_sensor',
     'schema_version' : 0,
     'peak_valley_95' : float,
     'flatnesshalfband_95' : float

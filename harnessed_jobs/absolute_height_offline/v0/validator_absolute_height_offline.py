@@ -21,7 +21,6 @@ if os.path.isfile(pickle_file):
     z_median_m_13 = np.median(sensorData.sensor.z) - 13000.
     z_quantile_0025 = sensorData.quantiles['0.025']
     z_quantile_0975 = sensorData.quantiles['0.975']
-    flatnesshalfband_95 = (z_quantile_0975 - z_quantile_0025)/2.
 
     zvalues, quantiles = [], []
     for key in sensorData.quantiles:
@@ -37,12 +36,11 @@ if os.path.isfile(pickle_file):
     quant_high = np.interp(znom - zbounds[1], zvalues, quantiles)
     frac_outside = 1. - (quant_high - quant_low)
 
-    results.append(lcatr.schema.valid(lcatr.schema.get('sensor_abs_height'),
+    results.append(lcatr.schema.valid(lcatr.schema.get('abs_height_sensor'),
                                       z_median_m_13=z_median_m_13,
                                       z_quantile_0025=z_quantile_0025,
                                       z_quantile_0975=z_quantile_0975,
-                                      frac_outside=frac_outside,
-                                      flatnesshalfband_95=flatnesshalfband_95))
+                                      frac_outside=frac_outside))
 
 results.extend(siteUtils.packageVersions())
 

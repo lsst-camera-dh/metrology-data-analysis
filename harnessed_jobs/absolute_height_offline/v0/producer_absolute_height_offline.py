@@ -7,9 +7,6 @@ from absoluteHeightTask import absoluteHeightTask
 sensor_id = siteUtils.getUnitId()
 ccd_vendor = siteUtils.getCcdVendor()
 
-print("sensor_id:  " + sensor_id)
-print("ccd_vendor:  " + ccd_vendor)
-
 if ccd_vendor == 'e2v':
     print "Absolute height analysis cannot not be performed with e2v vendor data.  Exiting producer script."
     sys.exit(0)

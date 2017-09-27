@@ -6,6 +6,7 @@ import siteUtils
 import metUtils
 from MetrologyData import md_factory
 
+print('In validator for absolute_height_offline')
 ccd_vendor = siteUtils.getCcdVendor()
 
 producer = 'SR-MET-05'
@@ -30,11 +31,16 @@ if os.path.isfile(pickle_file):
     zvalues.sort()
     quantiles.sort()
 
-    znom = 12.992  # for ITL
-    zbounds = (-0.009, 0.009)  # from CCD-030
-    quant_low = np.interp(znom - zbounds[0], zvalues, quantiles)
-    quant_high = np.interp(znom - zbounds[1], zvalues, quantiles)
+    # N.B. The absolute height values (which are calculated only for ITL
+    # sensors) are already relative to Znom (= 12992 microns for ITL)
+    zbounds = (-9, 9)  # range from CCD-030
+    quant_low = np.interp(zbounds[0], zvalues, quantiles)
+    quant_high = np.interp(zbounds[1], zvalues, quantiles)
     frac_outside = 1. - (quant_high - quant_low)
+
+    print(zvalues)
+    print(quantiles)
+    print(quant_low, quant_high, frac_outside)
 
     results.append(lcatr.schema.valid(lcatr.schema.get('abs_height_sensor'),
                                       z_median_m_13=z_median_m_13,

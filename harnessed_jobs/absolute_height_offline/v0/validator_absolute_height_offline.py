@@ -6,7 +6,6 @@ import siteUtils
 import metUtils
 from MetrologyData import md_factory
 
-print('In validator for absolute_height_offline')
 ccd_vendor = siteUtils.getCcdVendor()
 
 producer = 'SR-MET-05'
@@ -37,10 +36,6 @@ if os.path.isfile(pickle_file):
     quant_low = np.interp(zbounds[0], zvalues, quantiles)
     quant_high = np.interp(zbounds[1], zvalues, quantiles)
     frac_outside = 1. - (quant_high - quant_low)
-
-    print(zvalues)
-    print(quantiles)
-    print(quant_low, quant_high, frac_outside)
 
     results.append(lcatr.schema.valid(lcatr.schema.get('abs_height_sensor'),
                                       z_median_m_13=z_median_m_13,

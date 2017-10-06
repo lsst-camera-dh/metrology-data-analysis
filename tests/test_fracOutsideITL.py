@@ -40,5 +40,17 @@ class fracOutsideITLTestCase(unittest.TestCase):
         print('frac_outside:  %s' % frac_outside)
         self.assertAlmostEqual(frac_outside, 0.0)
 
+        # Shift down so middle of distribution is right at -9
+        shift = 9 + sensorData.quantiles['0.500']
+        for key in sensorData.quantiles:
+            sensorData.quantiles[key] -= shift
+
+        frac_outside = metUtils.frac_outside(sensorData.quantiles)
+
+        # Check against previous result 
+        #
+        print('frac_outside:  %s' % frac_outside)
+        self.assertAlmostEqual(frac_outside, 0.5)
+
 if __name__ == '__main__':
     unittest.main()

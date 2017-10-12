@@ -120,9 +120,6 @@ def get_met_scan_data(sensor_id, pattern, root_folder='LSST/vendorData',
 def frac_outside(quantileInfo, zbounds=(-9, 9)):
     # N.B. The absolute height values (which are calculated only for ITL
     # sensors) are already relative to Znom (= 12992 microns for ITL)
-    if quantileInfo is None:
-        raise RuntimeError("Quantiles not evaluated yet")
-
     zvalues, quantiles = [], []
     for key in quantileInfo:
         quantiles.append(float(key))

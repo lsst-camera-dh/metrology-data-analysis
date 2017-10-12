@@ -37,7 +37,6 @@ class fracOutsideITLTestCase(unittest.TestCase):
 
         # Check against previous result 
         #
-        print('frac_outside:  %s' % frac_outside)
         self.assertAlmostEqual(frac_outside, 0.0)
 
         # Shift down so middle of distribution is right at -9

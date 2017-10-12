@@ -22,25 +22,11 @@ if os.path.isfile(pickle_file):
     z_quantile_0025 = sensorData.quantiles['0.025']
     z_quantile_0975 = sensorData.quantiles['0.975']
 
-    zvalues, quantiles = [], []
-    for key in sensorData.quantiles:
-        quantiles.append(float(key))
-        zvalues.append(sensorData.quantiles[key])
-
-    zvalues.sort()
-    quantiles.sort()
-
-    znom = 12.992  # for ITL
-    zbounds = (-0.009, 0.009)  # from CCD-030
-    quant_low = np.interp(znom - zbounds[0], zvalues, quantiles)
-    quant_high = np.interp(znom - zbounds[1], zvalues, quantiles)
-    frac_outside = 1. - (quant_high - quant_low)
-
     results.append(lcatr.schema.valid(lcatr.schema.get('abs_height_sensor'),
                                       z_median_m_13=z_median_m_13,
                                       z_quantile_0025=z_quantile_0025,
                                       z_quantile_0975=z_quantile_0975,
-                                      frac_outside=frac_outside))
+                                      frac_outside=metUtils.frac_outside(sensorData.quantiles)))
 
 results.extend(siteUtils.packageVersions())
 

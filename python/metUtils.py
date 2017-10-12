@@ -4,6 +4,7 @@ import fnmatch
 import lcatr.schema
 from DataCatalog import DataCatalog
 import siteUtils
+import numpy as np
 
 def aggregate_filerefs(producer, testtype, origin=None, dp_mapping=None):
     """
@@ -116,6 +117,16 @@ def get_met_scan_data(sensor_id, pattern, root_folder='LSST/vendorData',
     siteUtils.print_file_list(description, file_list)
     return file_list
 
-if __name__ == '__main__':
-#    get_met_scan_data('e2v-CCD250-11093-10-04', '*.csv')
-    get_met_scan_data('ITL-3800C-033', '*.txt')
+def frac_outside(quantileInfo, zbounds=(-9, 9)):
+    # N.B. The absolute height values (which are calculated only for ITL
+    # sensors) are already relative to Znom (= 12992 microns for ITL)
+    zvalues, quantiles = [], []
+    for key in quantileInfo:
+        quantiles.append(float(key))
+        zvalues.append(quantileInfo[key])
+    zvalues.sort()
+    quantiles.sort()
+
+    quant_low = np.interp(zbounds[0], zvalues, quantiles)
+    quant_high = np.interp(zbounds[1], zvalues, quantiles)
+    return 1 - (quant_high - quant_low)
